@@ -259,10 +259,10 @@ def _run_operation_schedule(
                 "generator_efficiency": generator_cfg["efficiency"],
                 "engine_count": generator_cfg["engine_count"],
                 "shaft_power_extraction_W_per_engine": shaft_power_extraction_W_per_engine,
-                "thrust_penalty_N_per_engine": (
+                "thrust_penalty_from_extraction_N": (
                     extraction_result.equivalent_thrust_penalty_N
                 ),
-                "fuel_flow_increment_kg_s_per_engine": (
+                "fuel_flow_increment_from_extraction_kg_s": (
                     extraction_result.additional_fuel_flow_kg_s
                 ),
                 "heat_load_note": extraction_result.heat_load_note or "",

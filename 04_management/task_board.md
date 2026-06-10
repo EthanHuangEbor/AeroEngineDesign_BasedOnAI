@@ -26,3 +26,4 @@
 - Engine design-point surrogate
 - CSV export hygiene
 - Hybrid-electric subsystem
+- Hybrid CSV export hygiene

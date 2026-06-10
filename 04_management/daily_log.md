@@ -37,3 +37,11 @@
 - CSV outputs: `hybrid_timeline.csv`, `hybrid_summary.csv`, `electric_fan_mode_summary.csv`, `fan_failure_cases.csv`, and `hybrid_power_extraction_proxy.csv`.
 - Figure outputs: `electric_power_soc`, `electric_fan_thrust_proxy`, `hybrid_thermal_load`, and `fan_failure_power_available` in PNG and SVG formats.
 - Limitations: no mission solver, no block fuel, no certified STOL/noise/safety claim, and no verified fuel-burn reduction claim.
+
+# Daily Log 2026-06-10 V0.2-03R
+
+- Hybrid CSV export fixed and validated for downstream mission solver and report ingestion.
+- Tests run: bootstrap smoke test, environment/aero script, engine design-point script, hybrid script, and pytest.
+- Row counts: `hybrid_timeline.csv` 4, `hybrid_summary.csv` 1, `electric_fan_mode_summary.csv` 4, `fan_failure_cases.csv` 4, `hybrid_power_extraction_proxy.csv` 4.
+- Stage manifest created at `04_management/stage_manifest.md`.
+- Open limitation: mission solver still missing.

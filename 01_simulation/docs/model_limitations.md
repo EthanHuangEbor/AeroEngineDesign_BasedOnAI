@@ -37,3 +37,7 @@
 - Thermal model is lumped and not heat-exchanger design.
 - Generator shaft power extraction uses V0.2-02 power-equivalent proxy.
 - No STOL, noise, fuel-burn, or certified safety claim is made.
+
+## V0.2-03R Hybrid Output Hygiene
+
+- Hybrid CSV output format was validated for downstream mission solver and report ingestion. This does not change physical model fidelity.
