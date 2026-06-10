@@ -2,7 +2,6 @@
 
 ## Backlog
 
-- Atmosphere model
 - Engine design-point surrogate
 - Hybrid-electric subsystem
 - Mission solver
@@ -11,10 +10,7 @@
 
 ## In Progress
 
-- Repo bootstrap
-- Config loading
-- Frozen value tests
-- Smoke test
+- None
 
 ## Review
 
@@ -22,4 +18,10 @@
 
 ## Done
 
-- None
+- Repo bootstrap
+- Config loading
+- Frozen value tests
+- Smoke test
+- Atmosphere model
+- Basic fuel model
+- Basic aero model

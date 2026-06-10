@@ -5,3 +5,12 @@
 - All numerical outputs are model/configuration outputs, not verified truth.
 - Hydrogen and detonation propulsion are future upgrade stubs only.
 - SAF entries support lifecycle scenario bookkeeping only and do not imply carbon neutrality.
+
+## V0.2-01 Environment, Fuel, and Basic Aerodynamics
+
+- ISA atmosphere is limited to 0 to 12000 m and uses a simple troposphere lapse-rate model.
+- The drag polar is conceptual: `CD = CD0 + k CL^2`; it is not CFD, wind-tunnel data, or certified performance.
+- Flap and blowing coefficients are placeholders stored in `config/aero_model.yaml` for traceability.
+- The landing-gear drag increment uses a documented placeholder constant, `CD = +0.020`, in `aircraft/aerodynamics.py`.
+- Blown-flap outputs are proxy model inputs and must not be treated as certified STOL prediction.
+- SAF modeling is property-based only and is not fuel certification, lifecycle analysis, or carbon-neutrality evidence.

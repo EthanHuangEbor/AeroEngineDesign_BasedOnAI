@@ -1,0 +1,23 @@
+aero:
+  default:
+    cd0_clean: 0.026
+    cd0_takeoff_flap: 0.040
+    cd0_landing_flap: 0.075
+    oswald_efficiency: 0.78
+    aspect_ratio: 9.5
+    wing_area_m2: 160.0
+
+  clmax:
+    clean: 1.55
+    takeoff_flap: 2.35
+    landing_flap: 2.75
+
+  blowing:
+    enabled_default: false
+    clmax_increment_per_cmu: 3.0
+    cd_increment_per_cmu: 0.25
+    cmu_max_for_v02: 0.12
+
+  validation:
+    min_ld_clean_cruise: 12.0
+    max_ld_clean_cruise: 20.0

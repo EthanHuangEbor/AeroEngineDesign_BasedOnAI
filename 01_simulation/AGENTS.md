@@ -26,8 +26,10 @@ Build transparent, reproducible, concept-level Python models. The goal is not in
 
 From `01_simulation/`, run:
 
+```powershell
 python scripts/run_00_smoke_test.py
 python -m pytest
+```
 
 ## Coding Standards
 
