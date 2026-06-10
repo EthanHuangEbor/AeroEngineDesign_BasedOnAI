@@ -14,3 +14,12 @@
 - The landing-gear drag increment uses a documented placeholder constant, `CD = +0.020`, in `aircraft/aerodynamics.py`.
 - Blown-flap outputs are proxy model inputs and must not be treated as certified STOL prediction.
 - SAF modeling is property-based only and is not fuel certification, lifecycle analysis, or carbon-neutrality evidence.
+
+## V0.2-02 Engine Surrogate
+
+- The engine surrogate is not a component-level thermodynamic cycle model.
+- TSFC values in `config/engine_surrogate.yaml` are conceptual placeholders for trend studies.
+- Third-stream and variable-nozzle effects are parametric schedule multipliers, not verified cycle physics.
+- Shaft power extraction penalty is a power-equivalent proxy and not a real spool matching model.
+- Results are suitable only for concept-level comparison and later mission-model coupling.
+- No verified fuel-burn reduction, STOL, noise, SAF certification, or real engine performance claim is made.

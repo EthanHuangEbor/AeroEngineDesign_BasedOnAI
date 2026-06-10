@@ -1,0 +1,11 @@
+variant,engine_name,design_point,rating,mach,altitude_m,throttle,third_stream_schedule,variable_nozzle_schedule,shaft_power_extraction_W,gross_thrust_N,net_thrust_N,fuel_flow_kg_s,tsfc_kg_per_N_s,thrust_penalty_from_extraction_N,fuel_flow_increment_from_extraction_kg_s,constraint_flags
+baseline_fixed_cycle,baseline_fixed_cycle_turbofan,idle_ground,idle,0.0,0.0,0.1,0.3,0.4,0.0,11500.00012250539,11500.00012250539,0.2300000024501078,2e-05,0.0,0.0,
+baseline_fixed_cycle,baseline_fixed_cycle_turbofan,takeoff,takeoff,0.2,0.0,1.0,0.1,0.85,0.0,109940.00117115151,109940.00117115151,2.088860022251879,1.9e-05,0.0,0.0,
+baseline_fixed_cycle,baseline_fixed_cycle_turbofan,climb,climb,0.55,5000.0,0.88,0.15,0.7,0.0,61647.080911602694,61647.080911602694,0.986353294585643,1.6e-05,0.0,0.0,
+baseline_fixed_cycle,baseline_fixed_cycle_turbofan,cruise,cruise,0.75,10668.0,0.65,0.4,0.55,0.0,26850.472680946994,26850.472680946994,0.37590661753325794,1.4000000000000001e-05,0.0,0.0,
+baseline_fixed_cycle,baseline_fixed_cycle_turbofan,approach,approach,0.22,500.0,0.35,0.5,0.45,0.0,36993.495826505176,36993.495826505176,0.6658829248770932,1.8e-05,0.0,0.0,
+adaptive_cycle,three_stream_variable_cycle_turbofan,idle_ground,idle,0.0,0.0,0.1,0.3,0.4,0.0,11500.00012250539,11500.00012250539,0.22655000241335618,1.97e-05,0.0,0.0,
+adaptive_cycle,three_stream_variable_cycle_turbofan,takeoff,takeoff,0.2,0.0,1.0,0.1,0.85,0.0,114873.55872370694,114873.55872370694,2.117191483252121,1.8430624999999998e-05,0.0,0.0,
+adaptive_cycle,three_stream_variable_cycle_turbofan,climb,climb,0.55,5000.0,0.88,0.15,0.7,0.0,63157.43439393696,63157.43439393696,0.935282656581214,1.4808750000000001e-05,0.0,0.0,
+adaptive_cycle,three_stream_variable_cycle_turbofan,cruise,cruise,0.75,10668.0,0.65,0.4,0.55,0.0,26850.472680946994,26850.472680946994,0.32111487171870046,1.1959375e-05,0.0,0.0,
+adaptive_cycle,three_stream_variable_cycle_turbofan,approach,approach,0.22,500.0,0.35,0.5,0.45,0.0,37576.14338577263,37576.14338577263,0.6204290974783383,1.651125e-05,0.0,0.0,

@@ -2,7 +2,6 @@
 
 ## Backlog
 
-- Engine design-point surrogate
 - Hybrid-electric subsystem
 - Mission solver
 - Sensitivity runner
@@ -25,3 +24,4 @@
 - Atmosphere model
 - Basic fuel model
 - Basic aero model
+- Engine design-point surrogate

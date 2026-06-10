@@ -1,0 +1,90 @@
+engine_surrogate:
+  model_level: concept_surrogate_v02
+  certification_grade: false
+
+  baseline_fixed_cycle:
+    name: baseline_fixed_cycle_turbofan
+    sea_level_static_thrust_N_per_engine: 115000
+    reference_tsfc_kg_per_N_s:
+      idle: 0.000020
+      approach: 0.000018
+      cruise: 0.000014
+      climb: 0.000016
+      takeoff: 0.000019
+    rating_throttle_floor:
+      idle: 0.08
+      approach: 0.30
+      cruise: 0.55
+      climb: 0.78
+      takeoff: 1.00
+
+  adaptive_cycle:
+    name: three_stream_variable_cycle_turbofan
+    sea_level_static_thrust_N_per_engine: 115000
+    reference_tsfc_kg_per_N_s:
+      idle: 0.000020
+      approach: 0.000017
+      cruise: 0.0000125
+      climb: 0.000015
+      takeoff: 0.0000185
+    rating_throttle_floor:
+      idle: 0.08
+      approach: 0.30
+      cruise: 0.55
+      climb: 0.78
+      takeoff: 1.00
+
+  lapse_model:
+    density_exponent: 0.72
+    mach_thrust_lapse_per_mach: 0.22
+    min_lapse_factor: 0.18
+
+  third_stream_effects:
+    cruise_tsfc_reduction_at_full_schedule: 0.08
+    climb_tsfc_reduction_at_full_schedule: 0.035
+    approach_tsfc_reduction_at_full_schedule: 0.03
+    takeoff_thrust_penalty_at_full_schedule: 0.04
+    thrust_bonus_takeoff_low_third_stream: 0.025
+
+  nozzle_effects:
+    high_thrust_nozzle_bonus: 0.035
+    high_efficiency_nozzle_tsfc_reduction: 0.025
+
+  shaft_power_extraction:
+    penalty_model: concept_power_equivalent
+    mechanical_efficiency: 0.96
+    propulsive_power_equivalent_efficiency: 0.35
+    fuel_flow_increment_per_MW_kg_s: 0.012
+    max_extraction_W_per_engine_for_v02: 3000000
+
+  design_points:
+    - name: idle_ground
+      mach: 0.0
+      altitude_m: 0
+      rating: idle
+      throttle: 0.10
+      shaft_power_extraction_W: 0
+    - name: takeoff
+      mach: 0.20
+      altitude_m: 0
+      rating: takeoff
+      throttle: 1.00
+      shaft_power_extraction_W: 0
+    - name: climb
+      mach: 0.55
+      altitude_m: 5000
+      rating: climb
+      throttle: 0.88
+      shaft_power_extraction_W: 0
+    - name: cruise
+      mach: 0.75
+      altitude_m: 10668
+      rating: cruise
+      throttle: 0.65
+      shaft_power_extraction_W: 0
+    - name: approach
+      mach: 0.22
+      altitude_m: 500
+      rating: approach
+      throttle: 0.35
+      shaft_power_extraction_W: 0
