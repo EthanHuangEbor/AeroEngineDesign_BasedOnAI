@@ -27,3 +27,13 @@
 ## V0.2-02R Export Hygiene
 
 - CSV output format was validated for downstream report ingestion; this does not change physical model fidelity.
+
+## V0.2-03 Hybrid-electric subsystem limitations
+
+- Electric fan thrust is a power-over-velocity proxy.
+- Blowing coefficient is a proxy, not CFD or wind-tunnel data.
+- Electrical bus is quasi-steady.
+- Battery buffer is short-duration peak-power support only.
+- Thermal model is lumped and not heat-exchanger design.
+- Generator shaft power extraction uses V0.2-02 power-equivalent proxy.
+- No STOL, noise, fuel-burn, or certified safety claim is made.

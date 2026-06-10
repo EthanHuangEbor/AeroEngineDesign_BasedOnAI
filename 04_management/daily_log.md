@@ -28,3 +28,12 @@
 - Added tests validating expected CSV files, row counts, required columns, and newline-separated physical rows.
 - Tests run: bootstrap smoke test, environment/aero script, engine design-point script, and pytest.
 - Limitation: export hygiene does not change physical model fidelity or validate model accuracy.
+
+# Daily Log 2026-06-10 V0.2-03
+
+- V0.2-03 completed for the concept-level hybrid-electric subsystem and SOC model.
+- Files created: `config/hybrid_electric.yaml`, electrical subsystem modules, `propulsion/electric_fan.py`, `scripts/run_03_hybrid.py`, and hybrid-electric tests.
+- Tests run: bootstrap smoke test, environment/aero script, engine design-point script, hybrid script, and pytest.
+- CSV outputs: `hybrid_timeline.csv`, `hybrid_summary.csv`, `electric_fan_mode_summary.csv`, `fan_failure_cases.csv`, and `hybrid_power_extraction_proxy.csv`.
+- Figure outputs: `electric_power_soc`, `electric_fan_thrust_proxy`, `hybrid_thermal_load`, and `fan_failure_power_available` in PNG and SVG formats.
+- Limitations: no mission solver, no block fuel, no certified STOL/noise/safety claim, and no verified fuel-burn reduction claim.

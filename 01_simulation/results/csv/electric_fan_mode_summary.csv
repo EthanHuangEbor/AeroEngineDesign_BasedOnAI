@@ -1,0 +1,5 @@
+mode,input_power_W_per_fan,shaft_power_W_per_fan,thrust_N_per_fan,c_mu_proxy_per_fan,heat_loss_W_per_fan,aircraft
+off,0.0,0.0,0.0,0.0,0.0,MTA-VHEP
+assist,1000000.0,931000.0,8937.6,0.016213333093451607,69000.0,MTA-VHEP
+degraded,500000.0,465500.0,4468.8,0.008106666546725804,34500.0,MTA-VHEP
+failed,0.0,0.0,0.0,0.0,0.0,MTA-VHEP

@@ -1,0 +1,5 @@
+phase,generator_power_W_total,generator_efficiency,engine_count,shaft_power_extraction_W_per_engine,thrust_penalty_N_per_engine,fuel_flow_increment_kg_s_per_engine,heat_load_note
+takeoff,2000000.0,0.94,2,1063829.7872340425,42215.467747382645,0.01276595744680851,
+initial_climb,1500000.0,0.94,2,797872.340425532,19788.500506585613,0.009574468085106385,
+cruise,0.0,0.94,2,0.0,0.0,0.0,
+approach,1000000.0,0.94,2,531914.8936170213,21107.733873691323,0.006382978723404255,

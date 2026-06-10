@@ -2,7 +2,6 @@
 
 ## Backlog
 
-- Hybrid-electric subsystem
 - Mission solver
 - Sensitivity runner
 - Report skeleton
@@ -26,3 +25,4 @@
 - Basic aero model
 - Engine design-point surrogate
 - CSV export hygiene
+- Hybrid-electric subsystem

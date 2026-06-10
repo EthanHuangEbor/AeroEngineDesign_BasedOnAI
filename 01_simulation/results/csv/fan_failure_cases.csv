@@ -1,0 +1,5 @@
+case_name,fan_modes,available_fan_count,total_input_power_W,total_shaft_power_W,total_fan_thrust_N,c_mu_proxy
+all_fans_available,assist;assist;assist;assist,4,4000000.0,3724000.0,35750.4,0.06485333237380643
+single_fan_failed,failed;assist;assist;assist,3,3000000.0,2793000.0,26812.800000000003,0.048639999280354826
+one_side_failed,failed;failed;assist;assist,2,2000000.0,1862000.0,17875.2,0.032426666186903215
+all_electric_assist_unavailable,failed;failed;failed;failed,0,0.0,0.0,0.0,0.0

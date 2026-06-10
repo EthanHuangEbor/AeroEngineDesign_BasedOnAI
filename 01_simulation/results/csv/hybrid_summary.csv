@@ -1,0 +1,2 @@
+phase_count,soc_min,soc_max,peak_total_fan_thrust_N,peak_thermal_load_W,total_thermal_energy_Wh,total_unmet_load_Wh
+4,0.20000000000000007,0.9,35750.4,464573.2800518414,63327.438278108384,131285.74980092136

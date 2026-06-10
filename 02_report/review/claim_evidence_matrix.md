@@ -79,6 +79,17 @@
 | 61 | 混合电 SOC 模型尚未实现 | EI | CLAUDE.md (excluded: hybrid_electric_solver) | 待 V0.2-04 |
 | 62 | 敏感性分析尚未实现 | EI | CLAUDE.md (excluded: sensitivity_analysis) | 待 V0.2-05 |
 | 63 | 无经验证的 STOL 结果 | MO | 当前无起飞场长仿真 | 不得声称 |
+| 64 | V0.2-02 发动机代理模型已实现 | MO | engine_design_points.csv | 已完成 |
+| 65 | 基准固定循环和自适应循环变体均已评估 | MO | engine_design_points.csv | 已完成 |
+| 66 | 自适应循环巡航 TSFC 低于基准巡航 TSFC（代理模型） | MO | engine_design_points.csv | 低约14.6% |
+| 67 | 起飞额定推力高于巡航额定推力（代理模型） | MO | engine_design_points.csv | 已验证趋势 |
+| 68 | 轴功率提取降低净推力（代理模型） | MO | engine_power_extraction_sweep.csv | 已量化 penalty |
+| 69 | 轴功率提取增加燃油流量（代理模型） | MO | engine_power_extraction_sweep.csv | 已量化增量 |
+| 70 | 第三流道调度为参数化乘子，非经验证硬件设计 | LSB | engine_surrogate.yaml | 参数化 |
+| 71 | 发动机代理模型不是部件级热力学循环模型 | LSB | model_limitations.md |概念代理 |
+| 72 | 尚无任务燃油消耗结果 | MO | 当前无 mission_solver | 待 V0.2-04 |
+| 73 | 尚无混合电 SOC 结果 | EI | CLAUDE.md (excluded) | 待 V0.2-03 |
+| 74 | 轴功率提取 penalty 为功率等价代理，非真实 spool matching | LSB | model_limitations.md | 概念代理 |
 
 ## 声明追溯规则
 

@@ -1,0 +1,96 @@
+hybrid_electric:
+  model_level: concept_hybrid_electric_v03
+  certification_grade: false
+
+  electric_fan:
+    count: 4
+    nominal_power_W_per_fan: 1000000
+    max_power_W_per_fan_for_v02: 2000000
+    fan_diameter_m_assumption: 1.2
+    propulsive_efficiency: 0.72
+    min_effective_airspeed_mps: 35.0
+    thrust_model: power_over_velocity_proxy
+    blowing_coefficient_model: thrust_over_dynamic_pressure_wing_area_proxy
+    modes:
+      off:
+        power_fraction: 0.0
+      assist:
+        power_fraction: 1.0
+      degraded:
+        power_fraction: 0.5
+      failed:
+        power_fraction: 0.0
+
+  electrical_bus:
+    voltage_V: 1500
+    cable_distribution_efficiency: 0.985
+    max_generator_power_W_total_for_v02: 6000000
+    max_battery_discharge_power_W: 4000000
+    max_battery_charge_power_W: 1000000
+    load_shedding_enabled: true
+
+  motor:
+    efficiency: 0.95
+    specific_power_kW_per_kg: 6.0
+
+  inverter:
+    efficiency: 0.98
+    specific_power_kW_per_kg: 12.0
+
+  generator:
+    efficiency: 0.94
+    specific_power_kW_per_kg: 8.0
+    engine_count: 2
+
+  battery_buffer:
+    capacity_Wh: 500000
+    initial_soc: 0.90
+    min_soc: 0.20
+    max_soc: 0.95
+    roundtrip_efficiency: 0.92
+    specific_energy_Wh_per_kg: 250
+    specific_power_W_per_kg: 2500
+
+  thermal:
+    coolant_loop_efficiency: 0.90
+    report_heat_loads: true
+
+  operation_schedule:
+    - phase: takeoff
+      duration_s: 60
+      airspeed_mps: 75
+      altitude_m: 0
+      fan_mode: assist
+      generator_power_W_total: 2000000
+      battery_power_W_available: 4000000
+    - phase: initial_climb
+      duration_s: 180
+      airspeed_mps: 120
+      altitude_m: 1000
+      fan_mode: degraded
+      generator_power_W_total: 1500000
+      battery_power_W_available: 1000000
+    - phase: cruise
+      duration_s: 600
+      airspeed_mps: 230
+      altitude_m: 10668
+      fan_mode: off
+      generator_power_W_total: 0
+      battery_power_W_available: 0
+    - phase: approach
+      duration_s: 480
+      airspeed_mps: 70
+      altitude_m: 500
+      fan_mode: assist
+      generator_power_W_total: 1000000
+      battery_power_W_available: 3000000
+
+  failure_cases:
+    - name: all_fans_available
+      fan_modes: [assist, assist, assist, assist]
+    - name: single_fan_failed
+      fan_modes: [failed, assist, assist, assist]
+    - name: one_side_failed
+      fan_modes: [failed, failed, assist, assist]
+    - name: all_electric_assist_unavailable
+      fan_modes: [failed, failed, failed, failed]
