@@ -1,0 +1,42 @@
+sensitivity:
+  model_level: concept_sensitivity_v05
+  certification_grade: false
+
+  design_variables:
+    sea_level_static_thrust_N_per_engine:
+      values: [115000, 130000, 150000]
+    cruise_tsfc_multiplier:
+      values: [0.90, 1.00, 1.10]
+    cruise_ld:
+      values: [13.0, 15.0, 17.0, 18.0]
+    mtow_upper_kg:
+      values: [87500, 90000, 95000]
+    total_electric_power_W:
+      values: [0, 2000000, 4000000, 6000000, 8000000]
+    battery_capacity_Wh:
+      values: [250000, 500000, 1000000]
+    max_generator_power_W_total:
+      values: [2000000, 4000000, 6000000, 8000000]
+    hybrid_mass_per_MW_kg:
+      values: [150, 250, 400]
+    blown_flap_clmax_increment_fraction:
+      values: [0.0, 0.10, 0.20, 0.40]
+    approach_descent_angle_deg:
+      values: [-2.5, -3.0, -3.5]
+
+  strategy:
+    full_factorial_enabled: false
+    one_at_a_time_enabled: true
+    selected_grid_enabled: true
+    max_cases_for_v05: 250
+
+  scoring:
+    reject_if_low_thrust_margin: true
+    reject_if_unmet_electric_load: true
+    reject_if_above_mtow_upper: true
+    objective_priority:
+      - eliminate_major_constraints
+      - minimize_mission_fuel
+      - preserve_mtow_margin
+      - improve_takeoff_proxy
+      - minimize_hybrid_mass

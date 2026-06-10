@@ -70,3 +70,12 @@
 - Tests run: bootstrap smoke test, environment/aero script, engine design-point script, hybrid script, mission script, approach audit script, and pytest.
 - Key diagnostic conclusion: baseline/adaptive approach margins are model-formulation-sensitive; hybrid approach remains sizing/schedule-sensitive with unmet electric load.
 - Remaining open issues: V0.2-05 sensitivity analysis must refine approach modeling, propulsion schedule, hybrid power schedule, and sizing assumptions before any feasibility claim.
+
+# Daily Log 2026-06-10 V0.2-05
+
+- V0.2-05 sensitivity analysis completed with 225 summary rows from one-at-a-time scans and a selected hybrid design grid.
+- CSV outputs: `sensitivity_summary.csv`, `sensitivity_case_details.csv`, `sensitivity_constraints.csv`, `sensitivity_best_candidates.csv`, and `sensitivity_tornado_data.csv`.
+- Figure outputs: `constraint_tornado`, `pareto_fuel_vs_mtow`, `thrust_margin_vs_engine_rating`, `hybrid_power_sizing_map`, and `takeoff_proxy_sensitivity` in PNG and SVG formats.
+- Constraints summary: all 225 rows remain low-thrust-margin flagged; 69 rows have unmet electric load and 156 rows have zero unmet electric load.
+- Best candidate summary: selected rows are screening candidates only and remain constraint-qualified; no row is marked validated.
+- Open issues: V0.2-06/report integration should keep these as diagnostic model outputs, and future sizing work must address thrust margin before feasibility claims.

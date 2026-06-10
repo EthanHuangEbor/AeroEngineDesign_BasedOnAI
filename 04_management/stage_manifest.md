@@ -11,6 +11,7 @@
 - V0.2-04 segmented mission solver
 - V0.2-04R mission diagnostics and result audit
 - V0.2-04S approach/landing segment audit
+- V0.2-05 sensitivity analysis and candidate screening
 
 ## Stage Audit Notes
 
@@ -46,3 +47,12 @@ These deltas are diagnostic model outputs only; they are not verified fuel-burn 
 - The adaptive+hybrid approach result remains propulsion sizing/schedule-sensitive when electric assist is enabled in the current power schedule.
 - Hybrid unmet electric load remains unresolved in `approach_landing`.
 - V0.2-05 sensitivity analysis must use the diagnosed approach model and keep constraint-qualified reporting.
+
+## Known V0.2-05 Sensitivity Screening Status
+
+- V0.2-05 sensitivity analysis is implemented with one-at-a-time scans and a selected hybrid design grid.
+- Cases run: 225 sensitivity summary rows.
+- Low-thrust-margin status: no V0.2-05 screening row eliminated the low-thrust-margin constraint.
+- Unmet-electric-load status: 156 rows had zero unmet electric load, but these are still not validated because low thrust margin remains.
+- Best candidates are screening candidates only; all selected rows remain constraint-qualified model outputs.
+- Conservative conclusion: V0.2-05 identifies useful sensitivity directions, especially engine thrust, electric power schedule, and hybrid sizing effects, but it does not validate mission feasibility.

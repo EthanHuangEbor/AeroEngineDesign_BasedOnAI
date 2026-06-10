@@ -2,8 +2,8 @@
 
 ## Backlog
 
-- Sensitivity runner
 - Report skeleton
+- Report finalization
 
 ## In Progress
 
@@ -29,3 +29,4 @@
 - Mission solver
 - Mission result audit
 - Approach/landing audit
+- Sensitivity runner

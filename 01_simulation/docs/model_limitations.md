@@ -67,3 +67,11 @@
 - This is not a flight-dynamics or landing certification model.
 - Constraint resolution depends on future sizing and sensitivity analysis.
 - No STOL or certified landing performance claim is made.
+
+## V0.2-05 Sensitivity analysis limitations
+
+- Sensitivity cases use the current concept-level surrogate models.
+- Parameter scans are screening studies, not optimization certification.
+- Best candidates are design-space screening candidates, not a final design.
+- Results depend on V0.2 assumptions and should change as sizing, approach, and hybrid schedules are refined.
+- No final fuel-burn, range, STOL, noise, safety, or certification claim is made.
