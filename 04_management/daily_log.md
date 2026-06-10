@@ -45,3 +45,12 @@
 - Row counts: `hybrid_timeline.csv` 4, `hybrid_summary.csv` 1, `electric_fan_mode_summary.csv` 4, `fan_failure_cases.csv` 4, `hybrid_power_extraction_proxy.csv` 4.
 - Stage manifest created at `04_management/stage_manifest.md`.
 - Open limitation: mission solver still missing.
+
+# Daily Log 2026-06-10 V0.2-04
+
+- V0.2-04 completed for the concept-level segmented mission solver and proxy takeoff/landing indicators.
+- Files created: `config/mission_solver.yaml`, `aircraft/weights.py`, `mission/segment.py`, `mission/mission_solver.py`, `mission/takeoff_landing.py`, `scripts/run_04_mission.py`, and mission solver tests.
+- Tests run: bootstrap smoke test, environment/aero script, engine design-point script, hybrid script, mission script, and pytest.
+- CSV outputs: `mission_segments.csv`, `mission_summary.csv`, `weight_breakdown.csv`, `mission_constraint_violations.csv`, and `takeoff_landing_proxy.csv`.
+- Figure outputs: `mission_profile`, `fuel_burn_comparison`, `mission_energy_breakdown`, and `takeoff_proxy_comparison` in PNG and SVG formats.
+- Limitations: mission solver is quasi-steady and concept-level; takeoff/landing outputs are proxy indicators only; no certified range, fuel-burn, STOL, or noise claim is made.

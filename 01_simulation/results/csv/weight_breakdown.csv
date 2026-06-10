@@ -1,0 +1,4 @@
+payload_kg,oew_kg,fuel_kg,main_engines_kg,hybrid_fixed_mass_kg,hybrid_power_mass_kg,battery_mass_kg,hybrid_total_mass_kg,estimated_mtow_kg,mtow_margin_kg,case_name
+25000.0,52000.0,13714.99118249711,4400.0,0.0,0.0,0.0,0.0,90714.9911824971,-3214.991182497106,baseline_fixed_cycle_turbofan
+25000.0,52000.0,11948.721539679434,4400.0,0.0,0.0,0.0,0.0,88948.72153967943,-1448.7215396794345,adaptive_cycle_turbofan
+25000.0,52000.0,12443.225045810233,4400.0,1200.0,1000.0,2000.0,4200.0,93643.22504581024,-6143.225045810235,adaptive_cycle_plus_hybrid_electric

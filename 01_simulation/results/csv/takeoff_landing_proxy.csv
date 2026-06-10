@@ -1,0 +1,4 @@
+case_name,takeoff_proxy_index,landing_proxy_index,takeoff_clmax,landing_clmax,takeoff_effective_thrust_N,landing_effective_thrust_N,note
+baseline_fixed_cycle_turbofan,7857.667309022469,1291.9393037068376,2.35,2.75,218466.77980976296,75526.42279266262,proxy_indicator_not_certified_field_length
+adaptive_cycle_turbofan,7230.174613347759,1287.753860168884,2.35,2.75,228270.47655372607,76715.96395164705,proxy_indicator_not_certified_field_length
+adaptive_cycle_plus_hybrid_electric,10186.143712161396,1403.2111345000008,2.35,2.75,179589.94105896077,52183.75015945631,proxy_indicator_not_certified_field_length

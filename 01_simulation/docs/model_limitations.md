@@ -41,3 +41,12 @@
 ## V0.2-03R Hybrid Output Hygiene
 
 - Hybrid CSV output format was validated for downstream mission solver and report ingestion. This does not change physical model fidelity.
+
+## V0.2-04 Mission solver limitations
+
+- Segment mission model is quasi-steady and concept-level.
+- Fuel burn uses the surrogate engine deck and simplified thrust demand.
+- Climb/descent modeling is not trajectory optimization.
+- Takeoff/landing outputs are proxy indicators only.
+- Results are not certified range, fuel-burn, STOL, or noise performance.
+- Hybrid benefit/mass penalty is included but depends on placeholder assumptions.

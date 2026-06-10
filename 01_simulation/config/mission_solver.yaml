@@ -1,0 +1,57 @@
+mission_solver:
+  model_level: concept_segmented_mission_v04
+  certification_grade: false
+
+  cases:
+    - name: baseline_fixed_cycle_turbofan
+      engine_variant: baseline_fixed_cycle_turbofan
+      electric_assist_enabled: false
+      hybrid_mass_penalty_enabled: false
+      adaptive_third_stream_enabled: false
+
+    - name: adaptive_cycle_turbofan
+      engine_variant: three_stream_variable_cycle_turbofan
+      electric_assist_enabled: false
+      hybrid_mass_penalty_enabled: false
+      adaptive_third_stream_enabled: true
+
+    - name: adaptive_cycle_plus_hybrid_electric
+      engine_variant: three_stream_variable_cycle_turbofan
+      electric_assist_enabled: true
+      hybrid_mass_penalty_enabled: true
+      adaptive_third_stream_enabled: true
+
+  segment_defaults:
+    taxi_fuel_flow_fraction_idle: 0.10
+    reserve_fraction_initial: 0.08
+    descent_fuel_flow_fraction_cruise: 0.25
+    approach_fuel_flow_fraction_takeoff: 0.20
+
+  weights:
+    payload_kg: 25000
+    oew_kg: 52000
+    mtow_initial_kg: 87500
+    main_engine_mass_kg_each_assumption: 2200
+    hybrid_fixed_mass_kg: 1200
+    hybrid_mass_per_MW_kg: 250
+    battery_mass_override_kg: null
+    usable_fuel_capacity_kg_assumption: 22000
+
+  aero:
+    cruise_ld_override: null
+    climb_ld_factor: 0.82
+    descent_ld_factor: 0.90
+    approach_ld_factor: 0.55
+
+  numerical:
+    max_iterations_weight_closure: 5
+    convergence_fuel_kg: 25
+    min_segment_duration_s: 1
+    min_net_thrust_margin_N: 0
+
+  constraints:
+    report_fuel_capacity_exceeded: true
+    report_negative_final_fuel: true
+    report_soc_below_min: true
+    report_unmet_electric_load: true
+    report_low_thrust_margin: true

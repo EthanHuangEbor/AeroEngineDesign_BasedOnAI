@@ -2,7 +2,6 @@
 
 ## Backlog
 
-- Mission solver
 - Sensitivity runner
 - Report skeleton
 
@@ -27,3 +26,4 @@
 - CSV export hygiene
 - Hybrid-electric subsystem
 - Hybrid CSV export hygiene
+- Mission solver
