@@ -69,6 +69,16 @@
 | 51 | V0.2 模型不得声称认证等级 | DA | CLAUDE.md | FROZEN |
 | 52 | V0.2 数值结果均为占位符 | MO | 所有性能章节 | 占位符 |
 | 53 | 氢燃料和爆震推进不计入当前需求 | FW | propulsion.yaml | FW |
+| 54 | ISA 大气模型（0–12 km）已实现 | MO | V0.2-01 atmosphere_table.csv | 已填充 |
+| 55 | 燃料性质辅助模块已实现 | MO | V0.2-01 燃料辅助函数 | 已填充 |
+| 56 | 概念阻力极曲线已实现 | MO | V0.2-01 aero_check_table.csv | 占位符，非 CFD |
+| 57 | stall speed 随 CLmax 增加而下降（概念关系） | MO | V0.2-01 aero_check_table.csv | 已验证趋势 |
+| 58 | 吹气襟翼增升系数仍为占位符 | MO | config/aero_model.yaml | 待气动仿真 |
+| 59 | 发动机代理模型尚未实现 | EI | CLAUDE.md (excluded: propulsion_physics) | 待 V0.2-02 |
+| 60 | 任务求解器尚未实现 | EI | CLAUDE.md (excluded: mission_solver) | 待 V0.2-03 |
+| 61 | 混合电 SOC 模型尚未实现 | EI | CLAUDE.md (excluded: hybrid_electric_solver) | 待 V0.2-04 |
+| 62 | 敏感性分析尚未实现 | EI | CLAUDE.md (excluded: sensitivity_analysis) | 待 V0.2-05 |
+| 63 | 无经验证的 STOL 结果 | MO | 当前无起飞场长仿真 | 不得声称 |
 
 ## 声明追溯规则
 
