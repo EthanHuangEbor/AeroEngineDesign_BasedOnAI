@@ -72,12 +72,12 @@
 
 | 分析项 | 状态 | 说明 |
 |--------|------|------|
-| 大气参数表 | 待仿真结果填充 | 标准大气输入 |
-| 燃油消耗对比 | 待仿真结果填充 |尚未实现 |
-| TSFC 模式图 | 待仿真结果填充 | 尚未实现 |
-| SOC 剖面 | 待仿真结果填充 | 尚未实现 |
-| 起飞性能代理 | 待仿真结果填充 | 尚未实现 |
-| 敏感性龙卷风图 | 待仿真结果填充 | 尚未实现 |
+| 大气参数表 | ✅ 已填充 | V0.2-01 ISA 大气模型（7.2节，7.8节） |
+| 燃油消耗对比 | ✅ 已填充（约束告警） | V0.2-04 三方案对比（7.12节），不作为最终收益声明 |
+| TSFC 模式图 | ✅ 已填充 | V0.2-02 TSFC 模式图（7.9节） |
+| SOC 剖面 | ✅ 已填充 | V0.2-03 SOC 时间线（7.10节） |
+| 起飞性能代理 | ✅ 已填充（代理指标） | V0.2-04 起飞/着陆代理（7.12节），非认证场长 |
+| 敏感性龙卷风图 | 待仿真结果填充 | 待 V0.2-05 敏感性分析 |
 
 ## 7.8 V0.2-01 大气、燃料与基础气动模型输出
 
@@ -168,7 +168,7 @@ V0.2-01 已建立 stall speed 与 CLmax 的概念关系：
 | V0.2-01 环境/燃料/基础气动 | ✅ 已完成 | 本节所述内容 |
 | V0.2-02 发动机代理模型 | ✅ 已完成 | 提供推力/TSFC/抽功 penalty |
 | V0.2-03 混合电系统/电气总线/SOC | ⏳ 未完成 | 等待 V0.2-02 结果输入 |
-| V0.2-04 分段任务剖面求解器 | ⏳ 未完成 | 等待 V0.2-03 结果输入 |
+| V0.2-04 分段任务剖面求解器 | ✅ 已完成（约束告警） | 诊断输出，不作为最终收益声明 |
 | V0.2-05 敏感性分析 | ⏳ 未完成 | 等待 V0.2-04 结果输入 |
 
 ### 7.9 V0.2-02 发动机设计点与抽功惩罚输出
@@ -256,9 +256,136 @@ V0.2-03 层已完成混合电系统与电气总线模型输出，为 V0.2-04 分
 
 | 层级 | 状态 | 接口 |
 |------|------|------|
-| V0.2-04 分段任务剖面求解器 | ⏳ 待开始 | 使用 V0.2-03 功率时间线和 SOC 边界 |
+| V0.2-04 分段任务剖面求解器 | ✅ 已完成（约束告警） | 使用 V0.2-03 功率时间线和 SOC 边界 |
 | V0.2-05 敏感性分析 | ⏳ 待开始 | 使用 V0.2-04 结果 |
 
 ### 7.11 参数来源
 
 本章所有分析项在仿真完成前均为 **Model Output** 占位符，来源为后续仿真工作的输出结果。
+
+### 7.12 V0.2-04 分段任务求解器输出
+
+V0.2-04 层已完成分段任务求解器（segmented mission solver），对三个方案（baseline_fixed_cycle_turbofan / adaptive_cycle_turbofan / adaptive_cycle_plus_hybrid_electric）进行了准稳态分段任务仿真。**所有结果均为带约束告警的模型输出（Model Output），不作为最终收益声明。**
+
+#### 7.12.1 三方案任务燃油对比
+
+| 参数 | baseline_fixed_cycle_turbofan | adaptive_cycle_turbofan | adaptive_cycle_plus_hybrid_electric |
+|------|------------------------------|------------------------|-------------------------------------|
+| 任务燃油 mission_fuel_kg | 13712.67 | 11946.35 | 12443.23 |
+| 轮档燃油 block_fuel_kg | 12696.91 | 11061.43 | 11521.50 |
+| 备油 reserve_fuel_kg | 1015.75 | 884.91 | 921.72 |
+| 电能 electric_energy_Wh | 0 | 0 | 1009366.38 |
+| 峰值电功率 max_electric_power_W | 0 | 0 | 4000000.0 |
+| 峰值热负荷 max_thermal_load_W | 0 | 0 | 464573.28 |
+| 约束告警 constraint_violations | low_thrust_margin | low_thrust_margin | low_thrust_margin;unmet_electric_load |
+| 结论状态 conclusion_status | diagnostic_only_constraint_flagged | diagnostic_only_constraint_flagged | diagnostic_only_constraint_flagged |
+
+**表观燃油差量 vs 基准（apparent fuel deltas）**：
+
+| 方案 | 表观燃油差量 | 标注 |
+|------|------------|------|
+| adaptive vs baseline | -12.88% | **带约束告警的模型输出，不作为最终收益声明** |
+| hybrid vs baseline | -9.26% | **带约束告警的模型输出，不作为最终收益声明** |
+
+注意：hybrid 方案表观燃油差量（-9.26%）幅度小于 adaptive-only 方案（-12.88%），原因是混合电系统 4200 kg 质量惩罚增加了全航段燃油消耗。
+
+#### 7.12.2 重量分解与 MTOW 裕度
+
+| 参数 | baseline | adaptive | hybrid |
+|------|----------|----------|--------|
+| 有效载荷 payload_kg | 25000.0 | 25000.0 | 25000.0 |
+| 使用空重 oew_kg | 52000.0 | 52000.0 | 52000.0 |
+| 主机质量 main_engines_kg | 4400.0 | 4400.0 | 4400.0 |
+| 混合电固定质量 hybrid_fixed_mass_kg | 0 | 0 | 1200.0 |
+| 混合电功率质量 hybrid_power_mass_kg | 0 | 0 | 1000.0 |
+| 电池质量 battery_mass_kg | 0 | 0 | 2000.0 |
+| 混合电总质量 hybrid_total_mass_kg | 0 | 0 | 4200.0 |
+| 燃油质量 fuel_kg | 13714.99 | 11948.72 | 12443.23 |
+| **估算 MTOW estimated_mtow_kg** | **90714.99** | **88948.72** | **93643.23** |
+| MTOW 裕度（vs 初始 87500 kg） | -3214.99 | -1448.72 | -6143.23 |
+| MTOW 裕度（vs V0.1 上限 95000 kg） | 4285.01 | 6051.28 | 1356.77 |
+| 在 V0.1 MTOW 范围内 | 是 | 是 | 是 |
+
+**关键观察**：
+- 全部三个方案的 estimated MTOW 均超出初始 MTOW 假设 87500 kg
+- hybrid 方案 estimated MTOW 93643.23 kg，距 V0.1 上限 95000 kg 仅余 1356.77 kg
+- hybrid 方案 MTOW 裕度紧张，需在 V0.2-05 敏感性分析中迭代
+
+#### 7.12.3 约束讨论
+
+**low_thrust_margin（推力裕度不足）**：
+
+全部三个方案均存在 low_thrust_margin 约束告警，最严重段为 approach_landing：
+- baseline approach_landing: -104611.56 N
+- adaptive approach_landing: -102980.48 N
+- hybrid approach_landing: -146505.56 N
+
+此外，hybrid 方案的 climb 段也存在 low_thrust_margin（-2295.39 N）。
+
+推力裕度不足表明当前推力/阻力模型假设需要细化，可能的调整方向包括：
+- 主机推力调度优化
+- 阻力模型修正（进近构型 CD0、起落架阻力增量）
+- 进近速度/构型调整
+- 以上均需在 V0.2-05 敏感性分析中评估
+
+**unmet_electric_load（未满足电负荷）**：
+
+仅 hybrid 方案存在 unmet_electric_load：
+- 进近段（approach_landing）：287117.04 Wh
+- 峰值未满足功率代理：约 2153377.8 W
+
+未满足电负荷表明进近阶段电动风扇 assist 模式的功率需求超过电池和发电机的联合供给能力。可能需要调整：
+- 进近阶段电动风扇功率分配策略
+- 电池容量或发电机容量
+- SOC 调度策略
+- 以上均需在 V0.2-05 敏感性分析中评估
+
+**对 V0.2-05 敏感性分析的影响**：
+- 约束消除（constraint removal）是 V0.2-05 的核心目标之一
+- 在约束消除前，所有表观燃油差量不得作为最终收益声明
+- 敏感性分析应扫描推力、阻力、混合电功率、电池容量等关键参数对约束状态和燃油消耗的影响
+
+#### 7.12.4 起飞/着陆代理讨论
+
+起飞/着陆代理指标（takeoff/landing proxy index）为概念级方向性比较工具，**非认证场长**。
+
+| 方案 | 起飞代理指数 | 着陆代理指数 | 方向性 |
+|------|------------|------------|--------|
+| baseline | 7857.67 | 1291.94 | 参考基准 |
+| adaptive | 7230.17 | 1287.75 | 方向性优于 baseline |
+| hybrid | 9405.57 | 1347.75 | 方向性差于 baseline |
+
+**分析**：
+- 代理指数越低，方向性越好
+- adaptive 方案得益于更高的有效推力（228270.48 N vs 218466.78 N）和较低的起飞重量，起飞代理最优
+- hybrid 方案起飞代理指数 9405.57 > baseline 7857.67，说明 4200 kg 混合电系统质量惩罚主导了起飞代理，尽管 hybrid 方案有 35750.4 N 电动风扇推力辅助和更高的有效 CLmax（2.545 vs 2.35）
+- hybrid 方案起飞有效推力仅 179589.94 N（因轴功率提取 penalty 显著降低主机推力），低于 baseline 的 218466.78 N
+
+**注意**：
+- 起飞/着陆代理指标**不构成认证场长**
+- 混合电方案起飞代理恶化是质量惩罚的直接后果，需在 V0.2-05 中评估质量预算优化空间
+- 着陆代理指数 hybrid（1347.75）同样差于 baseline（1291.94），着陆有效推力仅 52183.75 N（baseline 75526.42 N）
+
+#### 7.12.5 V0.2-04 输出文件清单
+
+| 输出文件 | 类型 | 支持的报告内容 | 不证明的内容 |
+|----------|------|----------------|--------------|
+| `results/csv/mission_summary.csv` | Model Output | 三方案任务燃油对比 | 经验证的燃油消耗降低 |
+| `results/csv/mission_segments.csv` | Model Output | 分段推力/燃油/SOC | 认证级航程 |
+| `results/csv/weight_breakdown.csv` | Model Output | MTOW 分解与裕度 | 最终可行 sizing |
+| `results/csv/mission_constraint_violations.csv` | Model Output | 约束告警清单 | 约束已消除 |
+| `results/csv/mission_diagnostics.csv` | Model Output | 逐段诊断数据 | 认证级性能 |
+| `results/csv/mission_case_status.csv` | Model Output | 方案结论状态 | 最终收益声明 |
+| `results/csv/takeoff_landing_proxy.csv` | Model Output | 起飞/着陆代理对比 | 认证场长或 STOL 能力 |
+| `results/csv/takeoff_landing_proxy_components.csv` | Model Output | 代理指标组件分解 | 认证场长或 STOL 能力 |
+| `figures/png/mission_profile.png` | Model Output | 任务剖面可视化 | — |
+| `figures/png/fuel_burn_comparison.png` | Model Output | 燃油对比可视化 | — |
+| `figures/png/mission_energy_breakdown.png` | Model Output | 能量分解可视化 | — |
+| `figures/png/takeoff_proxy_comparison.png` | Model Output | 起飞代理可视化 | — |
+
+#### 7.12.6 V0.2-04 与 V0.2-05 的关系
+
+| 层级 | 状态 | 说明 |
+|------|------|------|
+| V0.2-04 分段任务剖面求解器 | ✅ 已完成（约束告警） | 本节所述内容 |
+| V0.2-05 敏感性分析 | ⏳ 必需后续工作 | 约束消除与最终结论措辞选择 |

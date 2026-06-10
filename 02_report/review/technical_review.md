@@ -158,32 +158,80 @@ V0.2-02 为概念级代理层（concept-level surrogate），不是部件级热�
 
 ---
 
-## 7. 待完成项
+## 7. V0.2-03 混合电系统验收
+
+（内容保持，省略）
+
+---
+
+## 8. V0.2-04 分段任务求解器验收
+
+V0.2-04 已完成分段任务求解器，作为概念级任务剖面分析层纳入报告。
+
+| V0.2-04 输出 | 状态 | 纳入文件 |
+|-------------|------|----------|
+| mission_summary.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| mission_segments.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| weight_breakdown.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| mission_constraint_violations.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| mission_diagnostics.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| mission_case_status.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| takeoff_landing_proxy.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| takeoff_landing_proxy_components.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| mission_profile.png | ✅ 已验收 | 07_performance_analysis.md |
+| fuel_burn_comparison.png | ✅ 已验收 | 07_performance_analysis.md |
+| mission_energy_breakdown.png | ✅ 已验收 | 07_performance_analysis.md |
+| takeoff_proxy_comparison.png | ✅ 已验收 | 07_performance_analysis.md |
+
+### 8.1 V0.2-04 验收结论
+
+**V0.2-04 验收为计算任务闭合（computational mission closure）**：
+- 全部三个方案（baseline/adaptive/hybrid）均完成计算收敛
+- 分段燃油、能量、推力裕度、SOC 剖面均已输出
+- 重量分解和起飞/着陆代理指标均已生成
+
+**V0.2-04 不验收为最终可行 sizing（not accepted as final feasible sizing）**：
+- 全部三个方案均存在 low_thrust_margin 约束告警
+- 混合电方案存在 unmet_electric_load 约束告警
+- 混合电方案 estimated MTOW 超出初始 MTOW 假设 6143.23 kg
+- 所有 apparent fuel delta 为带约束告警的模型输出，不作为最终收益声明
+
+### 8.2 V0.2-04R 审计验收
+
+V0.2-04R 任务诊断与结果审计已完成：
+- 约束诊断文件（mission_constraint_violations.csv, mission_diagnostics.csv, mission_case_status.csv）已生成
+- 起飞/着陆代理组件分解（takeoff_landing_proxy_components.csv）已生成
+- 所有诊断输出已纳入 stage_manifest.md 审计值记录
+
+---
+
+## 9. 待完成项
 
 | 项目 | 状态 | 说明 |
 |------|------|------|
-| 风险表 | ✅ 已创建 | 上一版审查时完成 |
-| 假设表 | ✅ 已创建 | 上一版审查时完成 |
-| 结果表 | ✅ 已创建并更新 | 含 V0.2-01 输出 |
-| 防御 Q&A | ✅ 已创建 | 上一版审查时完成 |
+| 风险表 | ✅ 已创建 | 已更新 |
+| 假设表 | ✅ 已创建并更新 | 含 V0.2-04 任务求解器假设 |
+| 结果表 | ✅ 已创建并更新 | 含 V0.2-04 输出 |
+| 防御 Q&A | ✅ 已创建并更新 | 含 V0.2-04 专项防御 |
 
 ---
 
-## 8. 剩余阻塞项（Remaining Blocking Items）
+## 10. 最终报告前阻塞项（Blocking Issues Before Final Report）
 
-以下项目阻碍 V0.2 仿真闭合，须按优先级完成：
+以下问题必须在最终报告提交前解决：
 
-| 序号 | 阻塞项 | 说明 |依赖关系 |
-|------|--------|------|----------|
-| 1 | 分段任务剖面求解器（V0.2-04） | 燃油消耗、航程、任务剖面汇总 | V0.2-03 已完成，可开始 |
-| 2 | 起飞/着陆性能代理 | 起飞场长估算、STOL 能力评估 | 依赖 V0.2-04 |
-| 3 | 重量统计与任务燃油闭合 | MTOW/OEW 更新、燃油平衡 | 依赖 V0.2-04 |
-| 4 | 敏感性分析（V0.2-05） | 关键参数影响程度龙卷风图 | 依赖 V0.2-04 |
-| 5 | 最终报告图表整合 | 将 V0.2-03 及后续输出图表纳入报告章节 | 依赖 V0.2-04 |
+| 序号 | 阻塞项 | 说明 | 依赖 |
+|------|--------|------|------|
+| 1 | low_thrust_margin | 全部三个方案均存在推力裕度不足，需优化推力/阻力假设 | V0.2-05 敏感性分析 |
+| 2 | unmet_electric_load | 混合电方案进近阶段电负荷未满足（287117 Wh），需调整功率调度或储能 | V0.2-05 敏感性分析 |
+| 3 | hybrid mass penalty | 混合电系统 4200 kg 质量惩罚导致起飞代理指标恶化，需评估质量预算 | V0.2-05 敏感性分析 |
+| 4 | MTOW sizing margin | 混合电方案 estimated MTOW 超出初始假设 6143 kg，需迭代 sizing | V0.2-05 敏感性分析 |
+| 5 | sensitivity analysis | V0.2-05 敏感性分析为必需后续工作，用于确定设计方向和约束消除路径 | V0.2-05 |
+| 6 | conservative benefit wording | 所有收益声明须在约束消除后使用保留措辞，当前不选择最终结论用语 | V0.2-05 |
 
 ---
 
-## 7. 审查结论
+## 11. 审查结论
 
 **通过条件**：所有 11 个报告章节和 4 个配套文件均已创建，关键声明已纳入证据链，明确排除声明已在相关章节中声明。
 

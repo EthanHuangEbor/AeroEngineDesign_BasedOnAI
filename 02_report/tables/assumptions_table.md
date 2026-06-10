@@ -89,9 +89,20 @@
 |----|------|------|------|------|------|
 | L-05 | V0.2-01 基础层 | 已完成 | FROZEN | V0.2-01 输出 | ISA 大气、燃料辅助、概念气动 |
 | L-06 | V0.2-02 发动机代理 | 已完成 | FROZEN | V0.2-02 输出 | TSFC、推力、轴功率 penalty（概念代理） |
-| L-07 | V0.2-03 混合电系统/电气总线/SOC | 未完成 | 待实现 | CLAUDE.md | 电池动态管理、功率分配 |
-| L-08 | V0.2-04 分段任务剖面求解器 | 未完成 | 待实现 | CLAUDE.md | 燃油消耗、航程 |
+| L-07 | V0.2-03 混合电系统/电气总线/SOC | 已完成 | FROZEN | V0.2-03 输出 | 功率时间线、SOC 边界、风扇失效 |
+| L-08 | V0.2-04 分段任务剖面求解器 | 已完成 | Model Output | V0.2-04 输出 | 约束告警状态，不作为最终收益声明 |
 | L-09 | V0.2-05 敏感性分析 | 未完成 | 待实现 | CLAUDE.md | 参数影响龙卷风图 |
+
+## 任务求解器假设（V0.2-04）
+
+| ID | 参数 | 值 | 状态 | 来源 | 备注 |
+|----|------|------|------|------|------|
+| M-10 | 求解器方法 | 准稳态分段方法（quasi-steady segment method） | Design Assumption | mission_solver.yaml | 非轨迹优化 |
+| M-11 | 爬升/下降 | 简化模型 | Design Assumption | mission_solver.yaml | 非轨迹优化，使用固定 L/D 因子 |
+| M-12 | 燃油流量 | 由发动机代理模型驱动 | Design Assumption | V0.2-02 engine_design_points.csv | 代理模型输出 |
+| M-13 | 混合电质量惩罚 | 已包含 | Design Assumption | mission_solver.yaml | hybrid_fixed_mass_kg=1200, hybrid_mass_per_MW_kg=250 |
+| M-14 | 备油方法 | 初始燃油比例法（reserve_fraction_initial=0.08） | Design Assumption | mission_solver.yaml | 简化方法，非适航备油政策 |
+| M-15 | 起飞/着陆代理 | 非认证场长（proxy_indicator_not_certified_field_length） | Design Assumption | mission_solver.yaml | 仅用于方案间方向性比较 |
 
 ## 混合电系统模型假设
 

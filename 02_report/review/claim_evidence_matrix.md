@@ -103,6 +103,18 @@
 | 85 | 混合电模型不证明区块燃油消耗降低 | LSB | model_limitations.md | 概念代理 |
 | 86 | 任务求解器尚未实现 | EI | CLAUDE.md (excluded) | 待 V0.2-04 |
 | 87 | V0.2-03 SOC 模型为准稳态概念模型 | LSB | model_limitations.md | 非认证 |
+| 88 | V0.2-04 分段任务求解器已实现 | MO | mission_summary.csv, mission_segments.csv | 已完成，约束告警 |
+| 89 | 三方案对比已实现（baseline/adaptive/hybrid） | MO | mission_summary.csv, mission_case_status.csv | 已完成 |
+| 90 | 任务燃油输出已生成 | MO | mission_summary.csv | 带约束告警 |
+| 91 | 自适应循环方案在当前代理模型假设下模型燃油低于基准方案 | MO | mission_case_status.csv（apparent_fuel_delta -12.88%） | 带约束告警的模型输出，不作为最终收益声明 |
+| 92 | 自适应+混合电方案在当前代理模型假设下模型燃油低于基准方案但高于纯自适应方案 | MO | mission_case_status.csv（apparent_fuel_delta -9.26%） | 带约束告警的模型输出，不作为最终收益声明 |
+| 93 | 全部三个方案均存在 low_thrust_margin | MO | mission_constraint_violations.csv | 约束告警 |
+| 94 | 混合电方案存在 unmet_electric_load | MO | mission_constraint_violations.csv（287117.04 Wh） | 约束告警 |
+| 95 | 当前结果为诊断用途（diagnostic only） | MO | mission_case_status.csv（conclusion_status） | 不作为最终性能声明 |
+| 96 | 不得声称经验证的燃油消耗降低 | MO | model_limitations.md | 约束消除前不得声称 |
+| 97 | 不得声称认证级航程 | MO | model_limitations.md | 概念分段模型 |
+| 98 | 不得声称 STOL 能力 | MO | model_limitations.md | 起飞/着陆代理指标非认证场长 |
+| 99 | V0.2-05 敏感性分析为必需后续工作 | FW | CLAUDE.md | 约束消除和最终结论措辞选择依赖 V0.2-05 |
 
 ## 声明追溯规则
 

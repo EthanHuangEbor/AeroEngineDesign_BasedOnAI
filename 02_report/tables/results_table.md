@@ -290,6 +290,116 @@
 - 噪声降低（无声学模型）
 - 认证级热安全（热负荷为集总参数估算）
 
+## 12. V0.2-04 分段任务求解器输出（已填充）
+
+**V0.2-04 层已完成分段任务求解器输出，标注为 Model Output。所有结果均带有约束告警，不作为最终收益声明。**
+
+### 12.1 mission_summary.csv
+
+**状态**：✅ 已填充（Model Output，带约束告警）
+
+| 参数 | baseline_fixed_cycle_turbofan | adaptive_cycle_turbofan | adaptive_cycle_plus_hybrid_electric | 备注 |
+|------|------------------------------|------------------------|-------------------------------------|------|
+| block_fuel_kg | 12696.91 | 11061.43 | 11521.50 | 轮档燃油 |
+| reserve_fuel_kg | 1015.75 | 884.91 | 921.72 | 备油 |
+| mission_fuel_kg | 13712.67 | 11946.35 | 12443.23 | 任务总燃油 |
+| electric_energy_Wh | 0 | 0 | 1009366.38 | 电能消耗 |
+| max_electric_power_W | 0 | 0 | 4000000.0 | 峰值电功率 |
+| max_thermal_load_W | 0 | 0 | 464573.28 | 峰值热负荷 |
+| constraint_violations | low_thrust_margin | low_thrust_margin | low_thrust_margin;unmet_electric_load | 约束告警 |
+| apparent_fuel_delta_vs_baseline_pct | 0.0 | -12.88 | -9.26 | 带约束告警的模型输出，不作为最终收益声明 |
+
+### 12.2 mission_segments.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| 参数 | 说明 |
+|------|------|
+| 行数 | 18 行数据（3 cases × 6 segments） |
+| 段类型 | taxi_out / takeoff / climb / cruise / descent / approach_landing |
+| 关键字段 | fuel_burn_kg, electric_energy_Wh, thrust_margin_N, constraint_flags |
+
+### 12.3 weight_breakdown.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| case | estimated_mtow_kg | mtow_margin_to_initial_kg | mtow_margin_to_upper_kg | within_v01_mtow_range |
+|------|------------------|--------------------------|------------------------|----------------------|
+| baseline | 90714.99 | -3214.99 | 4285.01 | True |
+| adaptive | 88948.72 | -1448.72 | 6051.28 | True |
+| hybrid | 93643.23 | -6143.23 | 1356.77 | True |
+
+注意：hybrid 方案 estimated MTOW 超过初始 MTOW 6143.23 kg，但在 V0.1 MTOW 上限 95000 kg 以内，margin 仅 1356.77 kg。
+
+### 12.4 mission_constraint_violations.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| 约束类型 | 涉及 case | 涉及段 | 最严重值 |
+|----------|----------|--------|----------|
+| low_thrust_margin | 全部 3 个 case | cruise, descent, approach_landing（hybrid 还包括 climb） | hybrid approach_landing: -146505.56 N |
+| unmet_electric_load | hybrid only | approach_landing | 287117.04 Wh |
+
+### 12.5 mission_diagnostics.csv
+
+**状态**：✅ 已填充（Model Output）
+
+逐段推力裕度、SOC、未满足负载诊断数据，18 行。
+
+### 12.6 mission_case_status.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| case | computational_success | conclusion_status |
+|------|----------------------|-------------------|
+| baseline | True | diagnostic_only_constraint_flagged |
+| adaptive | True | diagnostic_only_constraint_flagged |
+| hybrid | True | diagnostic_only_constraint_flagged |
+
+### 12.7 takeoff_landing_proxy.csv
+
+**状态**：✅ 已填充（Model Output，代理指标，非认证场长）
+
+| case | takeoff_proxy_index | landing_proxy_index | 备注 |
+|------|--------------------|--------------------|------|
+| baseline | 7857.67 | 1291.94 | 参考基准 |
+| adaptive | 7230.17 | 1287.75 | 方向性优于 baseline |
+| hybrid | 9405.57 | 1347.75 | 混合电质量惩罚主导，方向性差于 baseline |
+
+注意：proxy index 越低方向性越好。hybrid 方案因 4200 kg 混合电系统质量惩罚导致起飞代理指标恶化。
+
+### 12.8 takeoff_landing_proxy_components.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| 参数 | baseline | adaptive | hybrid |
+|------|----------|----------|--------|
+| takeoff_weight_kg | 90673.59 | 88907.94 | 93602.45 |
+| takeoff_effective_thrust_N | 218466.78 | 228270.48 | 179589.94 |
+| takeoff_clmax | 2.35 | 2.35 | 2.545 |
+| electric_thrust_proxy_N | 0 | 0 | 35750.4 |
+| hybrid_mass_penalty_kg | 0 | 0 | 4200.0 |
+
+### 12.9 输出图表
+
+| 图表 | 状态 | 备注 |
+|------|------|------|
+| `mission_profile.png` | ✅ 已生成 | 任务剖面图 |
+| `fuel_burn_comparison.png` | ✅ 已生成 | 三方案燃油对比 |
+| `mission_energy_breakdown.png` | ✅ 已生成 | 能量分解图 |
+| `takeoff_proxy_comparison.png` | ✅ 已生成 | 起飞代理对比 |
+| `mission_constraint_status.png` | 待确认 | 约束状态图 |
+
+### 12.10 V0.2-04 不证明的内容
+
+以下内容**不因 V0.2-04 输出而得到证明**：
+- 经验证的燃油消耗降低（所有 case 均有 low_thrust_margin 约束告警）
+- 认证级航程（任务求解器为概念分段模型）
+- STOL 能力（起飞/着陆代理指标非认证场长）
+- 噪声降低（无声学模型）
+- 混合电系统能量自洽（hybrid case 存在 unmet_electric_load）
+- 最终可行 sizing（estimated MTOW 超出初始假设，需迭代）
+
 ## 11. 结果表更新规则
 
 1. 每项仿真完成后，须在规定时间内更新对应结果表
