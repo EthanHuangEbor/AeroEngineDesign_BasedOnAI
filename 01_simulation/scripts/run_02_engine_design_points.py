@@ -15,6 +15,7 @@ SIM_ROOT = Path(__file__).resolve().parents[1]
 if str(SIM_ROOT) not in sys.path:
     sys.path.insert(0, str(SIM_ROOT))
 
+from mta_vhep.interfaces.csv_export import write_dataframe_csv  # noqa: E402
 from mta_vhep.interfaces.io import load_fuel_database, load_project_config, load_yaml  # noqa: E402
 from mta_vhep.propulsion.fuel import get_fuel  # noqa: E402
 from mta_vhep.propulsion.turbofan_vce import EngineOperatingPoint, VariableCycleTurbofan  # noqa: E402
@@ -52,7 +53,7 @@ def main() -> None:
         jet_a,
     )
     design_csv = csv_dir / "engine_design_points.csv"
-    design_table.to_csv(design_csv, index=False)
+    write_dataframe_csv(design_table, design_csv)
 
     extraction_table = _build_power_extraction_table(
         engines["adaptive_cycle"],
@@ -61,7 +62,7 @@ def main() -> None:
         jet_a,
     )
     extraction_csv = csv_dir / "engine_power_extraction_sweep.csv"
-    extraction_table.to_csv(extraction_csv, index=False)
+    write_dataframe_csv(extraction_table, extraction_csv)
 
     _plot_tsfc_mode_map(design_table, png_dir, svg_dir)
     _plot_thrust_lapse_map(design_table, png_dir, svg_dir)

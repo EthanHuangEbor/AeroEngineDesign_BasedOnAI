@@ -20,3 +20,11 @@
 - CSV outputs: `engine_design_points.csv` and `engine_power_extraction_sweep.csv`.
 - Figure outputs: `tsfc_mode_map`, `thrust_lapse_map`, and `power_extraction_penalty` in PNG and SVG formats.
 - Limitations: no certified engine cycle analysis, no real spool matching, no mission solver, no hybrid-electric subsystem, and no verified fuel-burn reduction claim.
+
+# Daily Log 2026-06-10 V0.2-02R
+
+- V0.2-02R completed for CSV export hygiene and result-health checks.
+- Added reusable LF-terminated CSV export helper for downstream report ingestion, Excel review, and mission solver coupling.
+- Added tests validating expected CSV files, row counts, required columns, and newline-separated physical rows.
+- Tests run: bootstrap smoke test, environment/aero script, engine design-point script, and pytest.
+- Limitation: export hygiene does not change physical model fidelity or validate model accuracy.

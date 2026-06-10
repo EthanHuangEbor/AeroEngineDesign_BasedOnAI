@@ -18,6 +18,7 @@ if str(SIM_ROOT) not in sys.path:
 from mta_vhep.aircraft.aerodynamics import AeroModel, AeroState  # noqa: E402
 from mta_vhep.core.atmosphere import isa_atmosphere  # noqa: E402
 from mta_vhep.core.units import kg_to_N  # noqa: E402
+from mta_vhep.interfaces.csv_export import write_dataframe_csv  # noqa: E402
 from mta_vhep.interfaces.io import load_project_config, load_yaml  # noqa: E402
 from mta_vhep.propulsion.fuel import blend_fuel, get_fuel  # noqa: E402
 
@@ -45,11 +46,11 @@ def main() -> None:
 
     atmosphere_table = _build_atmosphere_table()
     atmosphere_csv = csv_dir / "atmosphere_table.csv"
-    atmosphere_table.to_csv(atmosphere_csv, index=False)
+    write_dataframe_csv(atmosphere_table, atmosphere_csv)
 
     aero_table = _build_aero_table(config, aero_model)
     aero_csv = csv_dir / "aero_check_table.csv"
-    aero_table.to_csv(aero_csv, index=False)
+    write_dataframe_csv(aero_table, aero_csv)
 
     _plot_atmosphere(atmosphere_table, png_dir, svg_dir)
     _plot_stall_speed(aero_table, png_dir, svg_dir)

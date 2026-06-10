@@ -23,3 +23,7 @@
 - Shaft power extraction penalty is a power-equivalent proxy and not a real spool matching model.
 - Results are suitable only for concept-level comparison and later mission-model coupling.
 - No verified fuel-burn reduction, STOL, noise, SAF certification, or real engine performance claim is made.
+
+## V0.2-02R Export Hygiene
+
+- CSV output format was validated for downstream report ingestion; this does not change physical model fidelity.
