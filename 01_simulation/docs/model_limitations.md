@@ -59,3 +59,11 @@
 - Low thrust margin means current thrust/model schedule must be refined before claiming mission feasibility.
 - Unmet electric load means hybrid power schedule or storage/generator assumptions need refinement.
 - Apparent fuel reduction is not a verified benefit while constraints remain.
+
+## V0.2-04S Approach/landing segment audit limitations
+
+- The approach force balance is quasi-steady.
+- Descent angle is parametric.
+- This is not a flight-dynamics or landing certification model.
+- Constraint resolution depends on future sizing and sensitivity analysis.
+- No STOL or certified landing performance claim is made.

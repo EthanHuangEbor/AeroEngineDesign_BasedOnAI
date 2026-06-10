@@ -10,6 +10,7 @@
 - V0.2-03R hybrid CSV output hygiene
 - V0.2-04 segmented mission solver
 - V0.2-04R mission diagnostics and result audit
+- V0.2-04S approach/landing segment audit
 
 ## Stage Audit Notes
 
@@ -37,3 +38,11 @@ These are concept-level model outputs, not certified STOL, noise, fuel-burn, or 
   - adaptive_cycle_plus_hybrid_electric: about -9.3%
 
 These deltas are diagnostic model outputs only; they are not verified fuel-burn benefits.
+
+## Known V0.2-04S Approach/Landing Audit Status
+
+- V0.2-04S approach/landing segment audit is implemented.
+- Baseline and adaptive low-thrust-margin results are model-formulation-sensitive when a descending approach force balance is used.
+- The adaptive+hybrid approach result remains propulsion sizing/schedule-sensitive when electric assist is enabled in the current power schedule.
+- Hybrid unmet electric load remains unresolved in `approach_landing`.
+- V0.2-05 sensitivity analysis must use the diagnosed approach model and keep constraint-qualified reporting.

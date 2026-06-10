@@ -62,3 +62,11 @@
 - Constraints identified by segment and by case: all mission cases remain low-thrust-margin flagged, and the hybrid case also has unmet electric load.
 - Tests run: bootstrap smoke test, environment/aero script, engine design-point script, hybrid script, mission script, and pytest.
 - Open issue: V0.2-05 sensitivity analysis is needed before any design trade claims are made.
+
+# Daily Log 2026-06-10 V0.2-04S
+
+- Approach/landing audit files added: `mission/approach_analysis.py`, `scripts/run_04s_approach_audit.py`, approach audit CSV outputs, figures, and tests.
+- Script outputs: `approach_landing_diagnostics.csv`, `approach_sensitivity_scan.csv`, `approach_thrust_margin_audit`, and `approach_sensitivity_scan`.
+- Tests run: bootstrap smoke test, environment/aero script, engine design-point script, hybrid script, mission script, approach audit script, and pytest.
+- Key diagnostic conclusion: baseline/adaptive approach margins are model-formulation-sensitive; hybrid approach remains sizing/schedule-sensitive with unmet electric load.
+- Remaining open issues: V0.2-05 sensitivity analysis must refine approach modeling, propulsion schedule, hybrid power schedule, and sizing assumptions before any feasibility claim.

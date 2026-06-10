@@ -28,3 +28,4 @@
 - Hybrid CSV export hygiene
 - Mission solver
 - Mission result audit
+- Approach/landing audit

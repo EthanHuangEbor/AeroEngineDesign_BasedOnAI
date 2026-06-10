@@ -57,3 +57,13 @@ mission_solver:
     report_soc_below_min: true
     report_unmet_electric_load: true
     report_low_thrust_margin: true
+
+approach_landing_model:
+  model_level: concept_approach_force_balance_v04s
+  default_descent_angle_deg: -3.0
+  allow_descent_force_balance: true
+  include_weight_component_along_path: true
+  approach_drag_factor_scan: [0.75, 1.0, 1.25]
+  approach_rating_scan: [approach, climb]
+  electric_assist_coupling_check: true
+  do_not_mark_validated: true
