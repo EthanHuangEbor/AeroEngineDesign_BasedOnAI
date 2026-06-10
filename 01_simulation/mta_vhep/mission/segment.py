@@ -24,6 +24,8 @@ class MissionSegmentResult:
     electric_energy_Wh: float
     max_electric_power_W: float
     max_thermal_load_W: float
+    electric_thrust_proxy_N: float
+    blowing_momentum_coefficient: float
     average_required_thrust_N: float
     available_thrust_N: float
     thrust_margin_N: float

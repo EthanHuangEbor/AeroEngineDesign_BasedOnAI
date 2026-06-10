@@ -50,3 +50,12 @@
 - Takeoff/landing outputs are proxy indicators only.
 - Results are not certified range, fuel-burn, STOL, or noise performance.
 - Hybrid benefit/mass penalty is included but depends on placeholder assumptions.
+
+## V0.2-04R Mission result audit limitations
+
+- V0.2-04 mission results are diagnostic and constraint-flagged.
+- Negative margin to initial MTOW indicates sizing iteration is required.
+- V0.1 MTOW upper range is 95000 kg; margin to this upper bound is reported separately from margin to the initial MTOW assumption.
+- Low thrust margin means current thrust/model schedule must be refined before claiming mission feasibility.
+- Unmet electric load means hybrid power schedule or storage/generator assumptions need refinement.
+- Apparent fuel reduction is not a verified benefit while constraints remain.

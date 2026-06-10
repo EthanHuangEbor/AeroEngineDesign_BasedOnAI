@@ -27,3 +27,4 @@
 - Hybrid-electric subsystem
 - Hybrid CSV export hygiene
 - Mission solver
+- Mission result audit

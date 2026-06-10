@@ -54,3 +54,11 @@
 - CSV outputs: `mission_segments.csv`, `mission_summary.csv`, `weight_breakdown.csv`, `mission_constraint_violations.csv`, and `takeoff_landing_proxy.csv`.
 - Figure outputs: `mission_profile`, `fuel_burn_comparison`, `mission_energy_breakdown`, and `takeoff_proxy_comparison` in PNG and SVG formats.
 - Limitations: mission solver is quasi-steady and concept-level; takeoff/landing outputs are proxy indicators only; no certified range, fuel-burn, STOL, or noise claim is made.
+
+# Daily Log 2026-06-10 V0.2-04R
+
+- Mission diagnostics added with per-segment thrust margin, electric energy, SOC, unmet electric load, and constraint flags.
+- Weight-margin interpretation clarified by separating margin to initial MTOW from margin to the V0.1 upper MTOW range.
+- Constraints identified by segment and by case: all mission cases remain low-thrust-margin flagged, and the hybrid case also has unmet electric load.
+- Tests run: bootstrap smoke test, environment/aero script, engine design-point script, hybrid script, mission script, and pytest.
+- Open issue: V0.2-05 sensitivity analysis is needed before any design trade claims are made.

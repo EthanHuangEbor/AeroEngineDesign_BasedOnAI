@@ -228,6 +228,8 @@ class SegmentedMissionSolver:
                     electric_energy_Wh=electric.electric_energy_Wh,
                     max_electric_power_W=electric.max_electric_power_W,
                     max_thermal_load_W=electric.max_thermal_load_W,
+                    electric_thrust_proxy_N=electric.total_fan_thrust_N,
+                    blowing_momentum_coefficient=electric.c_mu_proxy,
                     average_required_thrust_N=required_thrust_N,
                     available_thrust_N=available_thrust_N,
                     thrust_margin_N=thrust_margin_N,

@@ -31,6 +31,8 @@ mission_solver:
     payload_kg: 25000
     oew_kg: 52000
     mtow_initial_kg: 87500
+    mtow_range_lower_kg: 80000
+    mtow_range_upper_kg: 95000
     main_engine_mass_kg_each_assumption: 2200
     hybrid_fixed_mass_kg: 1200
     hybrid_mass_per_MW_kg: 250

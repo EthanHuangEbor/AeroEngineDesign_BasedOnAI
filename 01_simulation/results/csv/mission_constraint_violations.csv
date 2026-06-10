@@ -1,16 +1,12 @@
-case_name,scope,segment_name,constraint_flag
-baseline_fixed_cycle_turbofan,mission,,low_thrust_margin
-baseline_fixed_cycle_turbofan,segment,cruise,low_thrust_margin
-baseline_fixed_cycle_turbofan,segment,descent,low_thrust_margin
-baseline_fixed_cycle_turbofan,segment,approach_landing,low_thrust_margin
-adaptive_cycle_turbofan,mission,,low_thrust_margin
-adaptive_cycle_turbofan,segment,cruise,low_thrust_margin
-adaptive_cycle_turbofan,segment,descent,low_thrust_margin
-adaptive_cycle_turbofan,segment,approach_landing,low_thrust_margin
-adaptive_cycle_plus_hybrid_electric,mission,,low_thrust_margin
-adaptive_cycle_plus_hybrid_electric,mission,,unmet_electric_load
-adaptive_cycle_plus_hybrid_electric,segment,climb,low_thrust_margin
-adaptive_cycle_plus_hybrid_electric,segment,cruise,low_thrust_margin
-adaptive_cycle_plus_hybrid_electric,segment,descent,low_thrust_margin
-adaptive_cycle_plus_hybrid_electric,segment,approach_landing,low_thrust_margin
-adaptive_cycle_plus_hybrid_electric,segment,approach_landing,unmet_electric_load
+case_name,segment_name,violation_type,value,threshold,explanation
+baseline_fixed_cycle_turbofan,cruise,low_thrust_margin,-6843.790576914114,0.0,available thrust is below required thrust in this mission segment
+baseline_fixed_cycle_turbofan,descent,low_thrust_margin,-39897.2915536737,0.0,available thrust is below required thrust in this mission segment
+baseline_fixed_cycle_turbofan,approach_landing,low_thrust_margin,-104611.55537619304,0.0,available thrust is below required thrust in this mission segment
+adaptive_cycle_turbofan,cruise,low_thrust_margin,-6076.179799731675,0.0,available thrust is below required thrust in this mission segment
+adaptive_cycle_turbofan,descent,low_thrust_margin,-39823.36356221416,0.0,available thrust is below required thrust in this mission segment
+adaptive_cycle_turbofan,approach_landing,low_thrust_margin,-102980.47687972552,0.0,available thrust is below required thrust in this mission segment
+adaptive_cycle_plus_hybrid_electric,climb,low_thrust_margin,-2295.3930659753387,0.0,available thrust is below required thrust in this mission segment
+adaptive_cycle_plus_hybrid_electric,cruise,low_thrust_margin,-8150.414414320112,0.0,available thrust is below required thrust in this mission segment
+adaptive_cycle_plus_hybrid_electric,descent,low_thrust_margin,-41330.10106467904,0.0,available thrust is below required thrust in this mission segment
+adaptive_cycle_plus_hybrid_electric,approach_landing,low_thrust_margin,-146505.56341178864,0.0,available thrust is below required thrust in this mission segment
+adaptive_cycle_plus_hybrid_electric,approach_landing,unmet_electric_load,287117.0432304107,0.0,electric load not met; peak unmet load proxy 2153377.8 W

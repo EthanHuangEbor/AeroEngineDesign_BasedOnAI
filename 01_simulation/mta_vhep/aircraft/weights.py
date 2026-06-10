@@ -22,6 +22,12 @@ class WeightBreakdown:
     battery_mass_kg: float
     hybrid_total_mass_kg: float
     estimated_mtow_kg: float
+    mtow_initial_kg: float
+    mtow_range_lower_kg: float
+    mtow_range_upper_kg: float
+    mtow_margin_to_initial_kg: float
+    mtow_margin_to_upper_kg: float
+    within_v01_mtow_range: bool
     mtow_margin_kg: float
 
 
@@ -53,6 +59,8 @@ class WeightBuildUp:
         payload_kg = _number(self.weights_config, "payload_kg")
         oew_kg = _number(self.weights_config, "oew_kg")
         mtow_initial_kg = _number(self.weights_config, "mtow_initial_kg")
+        mtow_range_lower_kg = _number(self.weights_config, "mtow_range_lower_kg")
+        mtow_range_upper_kg = _number(self.weights_config, "mtow_range_upper_kg")
         main_engines_kg = (
             _number(self.weights_config, "main_engine_mass_kg_each_assumption")
             * self.engine_count
@@ -74,6 +82,8 @@ class WeightBuildUp:
             hybrid_fixed_mass_kg + hybrid_power_mass_kg + battery_mass_kg
         )
         estimated_mtow_kg = oew_kg + payload_kg + fuel_kg + hybrid_total_mass_kg
+        mtow_margin_to_initial_kg = mtow_initial_kg - estimated_mtow_kg
+        mtow_margin_to_upper_kg = mtow_range_upper_kg - estimated_mtow_kg
 
         return WeightBreakdown(
             payload_kg=payload_kg,
@@ -85,7 +95,15 @@ class WeightBuildUp:
             battery_mass_kg=battery_mass_kg,
             hybrid_total_mass_kg=hybrid_total_mass_kg,
             estimated_mtow_kg=estimated_mtow_kg,
-            mtow_margin_kg=mtow_initial_kg - estimated_mtow_kg,
+            mtow_initial_kg=mtow_initial_kg,
+            mtow_range_lower_kg=mtow_range_lower_kg,
+            mtow_range_upper_kg=mtow_range_upper_kg,
+            mtow_margin_to_initial_kg=mtow_margin_to_initial_kg,
+            mtow_margin_to_upper_kg=mtow_margin_to_upper_kg,
+            within_v01_mtow_range=(
+                mtow_range_lower_kg <= estimated_mtow_kg <= mtow_range_upper_kg
+            ),
+            mtow_margin_kg=mtow_margin_to_initial_kg,
         )
 
     def _battery_mass_kg(self) -> float:

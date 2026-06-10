@@ -59,25 +59,35 @@ def main() -> None:
     segment_table = _mission_segments_table(results)
     summary_table = _mission_summary_table(results)
     weight_table = _weight_breakdown_table(results)
+    diagnostics_table = _mission_diagnostics_table(results)
+    case_status_table = _mission_case_status_table(results, diagnostics_table)
     constraints_table = _constraint_violations_table(results)
-    proxy_table = _takeoff_landing_proxy_table(results, aero_config)
+    proxy_table, proxy_components_table = _takeoff_landing_proxy_tables(results, aero_config)
 
     write_dataframe_csv(segment_table, csv_dir / "mission_segments.csv")
     write_dataframe_csv(summary_table, csv_dir / "mission_summary.csv")
     write_dataframe_csv(weight_table, csv_dir / "weight_breakdown.csv")
+    write_dataframe_csv(diagnostics_table, csv_dir / "mission_diagnostics.csv")
+    write_dataframe_csv(case_status_table, csv_dir / "mission_case_status.csv")
     write_dataframe_csv(constraints_table, csv_dir / "mission_constraint_violations.csv")
     write_dataframe_csv(proxy_table, csv_dir / "takeoff_landing_proxy.csv")
+    write_dataframe_csv(
+        proxy_components_table,
+        csv_dir / "takeoff_landing_proxy_components.csv",
+    )
 
     _plot_mission_profile(segment_table, png_dir, svg_dir)
     _plot_fuel_burn(summary_table, png_dir, svg_dir)
     _plot_energy_breakdown(summary_table, fuel.lower_heating_value_J_per_kg, png_dir, svg_dir)
     _plot_takeoff_proxy(proxy_table, png_dir, svg_dir)
+    _plot_constraint_status(case_status_table, png_dir, svg_dir)
 
     print("MTA-VHEP V0.2-04 Segmented Mission Solver Summary")
     print("Concept-level segmented mission solver; no certified range or fuel-burn claim.")
     print(f"Mission cases: {', '.join(summary_table['case_name'])}")
     print(f"Segment rows: {len(segment_table)}")
     print(f"Summary rows: {len(summary_table)}")
+    print(f"Diagnostics rows: {len(diagnostics_table)}")
     print(f"Wrote: {csv_dir / 'mission_segments.csv'}")
     print(f"Wrote: {csv_dir / 'mission_summary.csv'}")
 
@@ -122,58 +132,181 @@ def _weight_breakdown_table(results: list[MissionResult]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def _constraint_violations_table(results: list[MissionResult]) -> pd.DataFrame:
+def _mission_diagnostics_table(results: list[MissionResult]) -> pd.DataFrame:
     rows = []
     for result in results:
-        for flag in result.constraint_violations:
+        for segment in result.segment_results:
+            required_thrust_N = segment.average_required_thrust_N
+            thrust_margin_ratio = (
+                segment.thrust_margin_N / required_thrust_N
+                if required_thrust_N > 0.0
+                else 0.0
+            )
             rows.append(
                 {
                     "case_name": result.case_name,
-                    "scope": "mission",
-                    "segment_name": "",
-                    "constraint_flag": flag,
+                    "segment_name": segment.segment_name,
+                    "segment_type": segment.segment_type,
+                    "required_thrust_N": required_thrust_N,
+                    "available_thrust_N": segment.available_thrust_N,
+                    "thrust_margin_N": segment.thrust_margin_N,
+                    "thrust_margin_ratio": thrust_margin_ratio,
+                    "fuel_burn_kg": segment.fuel_burn_kg,
+                    "electric_energy_Wh": segment.electric_energy_Wh,
+                    "soc_start": segment.soc_start,
+                    "soc_end": segment.soc_end,
+                    "unmet_electric_load_Wh": segment.unmet_electric_load_Wh,
+                    "constraint_flags": ";".join(segment.constraint_flags),
                 }
             )
+    return pd.DataFrame(rows)
+
+
+def _mission_case_status_table(
+    results: list[MissionResult],
+    diagnostics_table: pd.DataFrame,
+) -> pd.DataFrame:
+    baseline_fuel = next(
+        result.mission_fuel_kg
+        for result in results
+        if result.case_name == "baseline_fixed_cycle_turbofan"
+    )
+    rows = []
+    for result in results:
+        case_diagnostics = diagnostics_table[
+            diagnostics_table["case_name"] == result.case_name
+        ]
+        positive_required = case_diagnostics[
+            case_diagnostics["required_thrust_N"] > 0.0
+        ]
+        if positive_required.empty:
+            min_margin_row = case_diagnostics.iloc[0]
+        else:
+            min_margin_row = positive_required.sort_values("thrust_margin_N").iloc[0]
+
+        has_low_thrust_margin = "low_thrust_margin" in result.constraint_violations
+        has_unmet_electric_load = "unmet_electric_load" in result.constraint_violations
+        major_constraint = has_low_thrust_margin or has_unmet_electric_load
+        if major_constraint:
+            conclusion_status = "diagnostic_only_constraint_flagged"
+        else:
+            conclusion_status = "candidate_for_sensitivity_study"
+
+        rows.append(
+            {
+                "case_name": result.case_name,
+                "computational_success": True,
+                "has_low_thrust_margin": has_low_thrust_margin,
+                "has_unmet_electric_load": has_unmet_electric_load,
+                "estimated_mtow_kg": result.weight_breakdown.estimated_mtow_kg,
+                "mtow_initial_kg": result.weight_breakdown.mtow_initial_kg,
+                "mtow_range_upper_kg": result.weight_breakdown.mtow_range_upper_kg,
+                "mtow_margin_to_initial_kg": (
+                    result.weight_breakdown.mtow_margin_to_initial_kg
+                ),
+                "mtow_margin_to_upper_kg": result.weight_breakdown.mtow_margin_to_upper_kg,
+                "within_v01_mtow_range": result.weight_breakdown.within_v01_mtow_range,
+                "mission_fuel_kg": result.mission_fuel_kg,
+                "apparent_fuel_delta_vs_baseline_pct": (
+                    (result.mission_fuel_kg - baseline_fuel) / baseline_fuel * 100.0
+                ),
+                "minimum_thrust_margin_N": float(min_margin_row["thrust_margin_N"]),
+                "minimum_thrust_margin_ratio": float(
+                    min_margin_row["thrust_margin_ratio"]
+                ),
+                "minimum_thrust_margin_segment": str(min_margin_row["segment_name"]),
+                "conclusion_status": conclusion_status,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _constraint_violations_table(results: list[MissionResult]) -> pd.DataFrame:
+    rows = []
+    for result in results:
         for segment in result.segment_results:
             for flag in segment.constraint_flags:
+                value, threshold, explanation = _violation_details(segment, flag)
                 rows.append(
                     {
                         "case_name": result.case_name,
-                        "scope": "segment",
                         "segment_name": segment.segment_name,
-                        "constraint_flag": flag,
+                        "violation_type": flag,
+                        "value": value,
+                        "threshold": threshold,
+                        "explanation": explanation,
                     }
                 )
     return pd.DataFrame(
         rows,
-        columns=("case_name", "scope", "segment_name", "constraint_flag"),
+        columns=(
+            "case_name",
+            "segment_name",
+            "violation_type",
+            "value",
+            "threshold",
+            "explanation",
+        ),
     )
 
 
-def _takeoff_landing_proxy_table(
+def _violation_details(segment, flag: str) -> tuple[float, float, str]:
+    if flag == "low_thrust_margin":
+        return (
+            segment.thrust_margin_N,
+            0.0,
+            "available thrust is below required thrust in this mission segment",
+        )
+    if flag == "unmet_electric_load":
+        peak_unmet_W = (
+            segment.unmet_electric_load_Wh * 3600.0 / segment.duration_s
+            if segment.duration_s > 0.0
+            else 0.0
+        )
+        return (
+            segment.unmet_electric_load_Wh,
+            0.0,
+            f"electric load not met; peak unmet load proxy {peak_unmet_W:.1f} W",
+        )
+    return (1.0, 0.0, "constraint flag emitted by concept mission solver")
+
+
+def _takeoff_landing_proxy_tables(
     results: list[MissionResult],
     aero_config: dict,
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     atmosphere = isa_atmosphere(0.0)
     wing_area_m2 = aero_config["aero"]["default"]["wing_area_m2"]
     takeoff_clmax = aero_config["aero"]["clmax"]["takeoff_flap"]
     landing_clmax = aero_config["aero"]["clmax"]["landing_flap"]
+    blowing = aero_config["aero"]["blowing"]
     rows = []
+    component_rows = []
     for result in results:
         takeoff_segment = _segment_by_type(result, "takeoff")
         approach_segment = _segment_by_type(result, "approach")
+        takeoff_clmax_effective = _effective_clmax(
+            takeoff_clmax,
+            takeoff_segment.blowing_momentum_coefficient,
+            blowing,
+        )
+        landing_clmax_effective = _effective_clmax(
+            landing_clmax,
+            approach_segment.blowing_momentum_coefficient,
+            blowing,
+        )
         takeoff_proxy = takeoff_performance_proxy(
             weight_N=kg_to_N(takeoff_segment.start_mass_kg),
             density_kg_m3=atmosphere.density_kg_m3,
             wing_area_m2=wing_area_m2,
-            clmax=takeoff_clmax,
+            clmax=takeoff_clmax_effective,
             effective_thrust_N=takeoff_segment.available_thrust_N,
         )
         landing_proxy = landing_performance_proxy(
             weight_N=kg_to_N(approach_segment.end_mass_kg),
             density_kg_m3=atmosphere.density_kg_m3,
             wing_area_m2=wing_area_m2,
-            clmax=landing_clmax,
+            clmax=landing_clmax_effective,
             effective_thrust_N=approach_segment.available_thrust_N,
         )
         rows.append(
@@ -188,7 +321,26 @@ def _takeoff_landing_proxy_table(
                 "note": "proxy_indicator_not_certified_field_length",
             }
         )
-    return pd.DataFrame(rows)
+        component_rows.append(
+            {
+                "case_name": result.case_name,
+                "weight_kg": takeoff_segment.start_mass_kg,
+                "density_kg_m3": atmosphere.density_kg_m3,
+                "wing_area_m2": wing_area_m2,
+                "clmax_effective": takeoff_clmax_effective,
+                "effective_thrust_N": takeoff_segment.available_thrust_N,
+                "electric_thrust_proxy_N": takeoff_segment.electric_thrust_proxy_N,
+                "hybrid_mass_penalty_kg": result.weight_breakdown.hybrid_total_mass_kg,
+                "takeoff_proxy_index": takeoff_proxy.field_length_index,
+                "landing_proxy_index": landing_proxy.field_length_index,
+            }
+        )
+    return pd.DataFrame(rows), pd.DataFrame(component_rows)
+
+
+def _effective_clmax(base_clmax: float, c_mu_proxy: float, blowing: dict) -> float:
+    cmu = min(max(c_mu_proxy, 0.0), blowing["cmu_max_for_v02"])
+    return base_clmax + blowing["clmax_increment_per_cmu"] * cmu
 
 
 def _segment_by_type(result: MissionResult, segment_type: str):
@@ -282,6 +434,36 @@ def _plot_takeoff_proxy(proxy_table: pd.DataFrame, png_dir: Path, svg_dir: Path)
         fig,
         png_dir / "takeoff_proxy_comparison.png",
         svg_dir / "takeoff_proxy_comparison.svg",
+    )
+    plt.close(fig)
+
+
+def _plot_constraint_status(
+    case_status_table: pd.DataFrame,
+    png_dir: Path,
+    svg_dir: Path,
+) -> None:
+    fig, ax = plt.subplots(figsize=(8.0, 4.8), dpi=140)
+    colors = [
+        "#d62728" if flag else "#2ca02c"
+        for flag in case_status_table["has_low_thrust_margin"]
+    ]
+    ax.bar(
+        case_status_table["case_name"],
+        case_status_table["minimum_thrust_margin_N"],
+        color=colors,
+    )
+    ax.axhline(0.0, color="black", linewidth=1.0)
+    ax.set_xlabel("Mission case")
+    ax.set_ylabel("Minimum thrust margin (N)")
+    ax.set_title("Mission Constraint Status")
+    ax.tick_params(axis="x", rotation=20)
+    ax.grid(True, axis="y", alpha=0.3)
+    fig.tight_layout()
+    _save_figure(
+        fig,
+        png_dir / "mission_constraint_status.png",
+        svg_dir / "mission_constraint_status.svg",
     )
     plt.close(fig)
 
