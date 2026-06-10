@@ -90,6 +90,19 @@
 | 72 | 尚无任务燃油消耗结果 | MO | 当前无 mission_solver | 待 V0.2-04 |
 | 73 | 尚无混合电 SOC 结果 | EI | CLAUDE.md (excluded) | 待 V0.2-03 |
 | 74 | 轴功率提取 penalty 为功率等价代理，非真实 spool matching | LSB | model_limitations.md | 概念代理 |
+| 75 | V0.2-03 混合电子系统已实现 | MO | hybrid_timeline.csv, hybrid_summary.csv | 已完成 |
+| 76 | 电气总线模型已实现 | MO | hybrid_timeline.csv | 已完成 |
+| 77 | 电池 SOC 边界在 V0.2-03 输出中得到执行（SOC min = 0.20） | MO | hybrid_summary.csv | 已量化 |
+| 78 | 电动风扇 assist模式产生正推力代理 | MO | electric_fan_mode_summary.csv | 已验证 |
+| 79 | failed/off 模式推力代理为零 | MO | electric_fan_mode_summary.csv | 已验证 |
+| 80 | 全电动辅助不可用场景推力代理为零 | MO | fan_failure_cases.csv | 已验证 |
+| 81 | 风扇失效退化接口存在（4 种场景） | MO | fan_failure_cases.csv | 已实现 |
+| 82 | 发电机功率需求已转换为每台发动机轴功率提取代理 | MO | hybrid_power_extraction_proxy.csv | 已量化 |
+| 83 | 混合电模型不证明 STOL 改进 | LSB | model_limitations.md | 概念代理 |
+| 84 | 混合电模型不证明噪声降低 | LSB | model_limitations.md | 概念代理 |
+| 85 | 混合电模型不证明区块燃油消耗降低 | LSB | model_limitations.md | 概念代理 |
+| 86 | 任务求解器尚未实现 | EI | CLAUDE.md (excluded) | 待 V0.2-04 |
+| 87 | V0.2-03 SOC 模型为准稳态概念模型 | LSB | model_limitations.md | 非认证 |
 
 ## 声明追溯规则
 

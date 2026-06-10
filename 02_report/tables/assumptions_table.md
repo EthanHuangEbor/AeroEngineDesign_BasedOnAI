@@ -93,6 +93,17 @@
 | L-08 | V0.2-04 分段任务剖面求解器 | 未完成 | 待实现 | CLAUDE.md | 燃油消耗、航程 |
 | L-09 | V0.2-05 敏感性分析 | 未完成 | 待实现 | CLAUDE.md | 参数影响龙卷风图 |
 
+## 混合电系统模型假设
+
+| ID | 参数 | 值 | 状态 | 来源 | 备注 |
+|----|------|------|------|------|------|
+| H-01 | 风扇推力代理 | P_shaft / v_aircraft | Design Assumption | hybrid_electric.yaml | 非 CFD/风洞 |
+| H-02 | 电池角色 | 短时峰值功率缓冲 | FROZEN | hybrid_electric.yaml | 非巡航能量存储 |
+| H-03 | SOC 边界 | 0.20–0.90 | Design Assumption | hybrid_electric.yaml | 安全限制 |
+| H-04 | 热管理模型 | 集总参数 | Design Assumption | hybrid_electric.yaml | 非换热器设计 |
+| H-05 | 风扇失效模式 | 离散调度场景 | Design Assumption | hybrid_electric.yaml | 非冗余设计 |
+| H-06 | 发电机抽功 | 使用 V0.2-02 功率等价代理 | Design Assumption | hybrid_power_extraction_proxy.csv | 非真实 spool matching |
+
 ## 模型等级假设
 
 | ID | 参数 | 值 | 状态 | 来源 | 备注 |
