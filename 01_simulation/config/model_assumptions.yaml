@@ -1,0 +1,22 @@
+assumption_policy:
+  model_level: concept_design_v02
+  certification_grade: false
+  all_outputs_are_model_outputs: true
+  no_unverified_performance_claims: true
+
+scope:
+  included:
+    - frozen_configuration_loading
+    - dataclass_interfaces
+    - smoke_test
+    - frozen_value_tests
+  excluded_in_this_task:
+    - propulsion_physics
+    - mission_solver
+    - aerodynamic_solver
+    - hybrid_electric_solver
+    - sensitivity_analysis
+    - commercial_software_models
+    - CFD
+    - certified_STOL_prediction
+    - certified_noise_prediction

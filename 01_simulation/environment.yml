@@ -1,0 +1,17 @@
+name: mta-vhep
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - pyyaml
+  - openpyxl
+  - pytest
+  - pip
+  - pip:
+      - pint
+      - black
+      - ruff

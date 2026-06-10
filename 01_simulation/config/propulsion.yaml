@@ -1,0 +1,60 @@
+propulsion:
+  main_engine:
+    type: three_stream_variable_cycle_turbofan
+    count: 2
+    sea_level_static_thrust_N_per_engine_initial: 115000
+    sea_level_static_thrust_N_per_engine_scan: [100000, 115000, 130000, 150000]
+    supports_shaft_power_extraction: true
+    third_stream_model: parametric
+    future_hydrogen_enabled: false
+    future_detonation_enabled: false
+
+    modes:
+      takeoff:
+        throttle: 1.00
+        third_stream_schedule: 0.10
+        variable_nozzle_schedule: 0.85
+      climb:
+        throttle: 0.88
+        third_stream_schedule: 0.15
+        variable_nozzle_schedule: 0.70
+      cruise:
+        throttle: 0.65
+        third_stream_schedule: 0.40
+        variable_nozzle_schedule: 0.55
+      approach:
+        throttle: 0.35
+        third_stream_schedule: 0.50
+        variable_nozzle_schedule: 0.45
+      idle:
+        throttle: 0.10
+        third_stream_schedule: 0.30
+        variable_nozzle_schedule: 0.40
+
+  electric_blown_flap_fan:
+    count: 4
+    role: low_speed_lift_augmentation
+    power_W_per_fan_initial: 1000000
+    total_power_W_scan: [0, 2000000, 4000000, 6000000, 8000000]
+    cruise_operation: off_or_low_drag
+    fan_pressure_ratio_range: [1.05, 1.25]
+    motor_efficiency: 0.95
+    inverter_efficiency: 0.98
+    failure_modes:
+      - single_fan_failed
+      - one_side_failed
+      - all_electric_assist_unavailable
+
+electrical:
+  bus_voltage_V_initial: 1500
+  bus_voltage_V_range: [1000, 3000]
+  generator_efficiency: 0.94
+  cable_distribution_efficiency: 0.985
+  battery_buffer_capacity_Wh_initial: 500000
+  battery_buffer_capacity_Wh_scan: [0, 250000, 500000, 1000000]
+  battery_soc_min: 0.2
+  battery_soc_initial: 0.9
+
+model_boundaries:
+  max_total_electric_fan_power_W: 8000000
+  certification_grade: false

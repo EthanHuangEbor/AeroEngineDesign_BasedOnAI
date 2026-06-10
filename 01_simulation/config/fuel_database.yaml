@@ -1,0 +1,19 @@
+fuels:
+  Jet-A:
+    lower_heating_value_J_per_kg: 43000000
+    density_kg_per_m3: 800
+    carbon_emission_factor_kgCO2_per_kg: 3.16
+    lifecycle_factor_kgCO2e_per_kg: null
+    blend_ratio_saf: 0.0
+
+  SAF_generic:
+    lower_heating_value_J_per_kg: 43000000
+    density_kg_per_m3: 780
+    carbon_emission_factor_kgCO2_per_kg: 3.16
+    lifecycle_factor_kgCO2e_per_kg: null
+    blend_ratio_saf: 1.0
+
+fuel_policy:
+  baseline_fuel: Jet-A
+  saf_is_lifecycle_scenario_only: true
+  do_not_claim_carbon_neutrality: true

@@ -1,0 +1,18 @@
+MTA-VHEP V0.2 Smoke Test Summary
+Concept-level configuration load only; no propulsion physics run.
+Aircraft name: MTA-VHEP
+Payload design: 25000 kg
+Design range: 3200 km
+Cruise Mach: 0.75
+Cruise altitude: 10668 m
+MTOW initial: 87500 kg
+OEW initial: 52000 kg
+Main engine type: three_stream_variable_cycle_turbofan
+Main engine count: 2
+Per-engine initial static thrust: 115000 N
+Electric fan count: 4
+Per-fan initial power: 1e+06 W
+Fuel names: Jet-A, SAF_generic
+Mission name: design_payload_range_mission
+Mission segment count: 6
+Summed nominal mission distance: 3200 km

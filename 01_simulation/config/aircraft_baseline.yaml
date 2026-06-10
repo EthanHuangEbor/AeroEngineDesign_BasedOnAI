@@ -1,0 +1,26 @@
+aircraft:
+  name: MTA-VHEP
+  type: medium_transport
+  payload_design_kg: 25000
+  range_design_km: 3200
+  engine_count: 2
+  electric_fan_count: 4
+  cruise_mach: 0.75
+  cruise_altitude_m: 10668
+  mtow_initial_kg: 87500
+  oew_initial_kg: 52000
+  mtow_range_kg: [80000, 95000]
+  oew_range_kg: [45000, 58000]
+
+geometry:
+  wing_area_m2_initial: 160.0
+  aspect_ratio_initial: 9.5
+  oswald_efficiency_initial: 0.78
+  cd0_cruise_initial: 0.026
+  ld_cruise_range: [13.0, 18.0]
+
+performance_targets:
+  takeoff_field_length_target_m: 1700
+  landing_field_length_target_m: 1400
+  max_mach: 0.80
+  max_altitude_m: 12000

@@ -1,0 +1,75 @@
+mission:
+  name: design_payload_range_mission
+  design_payload_kg: 25000
+  design_range_km: 3200
+  reserve_policy:
+    status: TBD
+    reserve_fraction_initial: 0.08
+    alternate_range_km_initial: 200
+
+segments:
+  - name: taxi_out
+    segment_type: taxi
+    duration_s: 900
+    distance_km: 0
+    altitude_start_m: 0
+    altitude_end_m: 0
+    mach: null
+    speed_mps: null
+    electric_fan_mode: off
+    engine_rating: idle
+
+  - name: takeoff
+    segment_type: takeoff
+    duration_s: 60
+    distance_km: 2
+    altitude_start_m: 0
+    altitude_end_m: 50
+    mach: null
+    speed_mps: 75
+    electric_fan_mode: assist
+    engine_rating: takeoff
+
+  - name: climb
+    segment_type: climb
+    duration_s: null
+    distance_km: 220
+    altitude_start_m: 50
+    altitude_end_m: 10668
+    mach: 0.55
+    speed_mps: null
+    electric_fan_mode: degraded
+    engine_rating: climb
+
+  - name: cruise
+    segment_type: cruise
+    duration_s: null
+    distance_km: 2800
+    altitude_start_m: 10668
+    altitude_end_m: 10668
+    mach: 0.75
+    speed_mps: null
+    electric_fan_mode: off
+    engine_rating: cruise
+
+  - name: descent
+    segment_type: descent
+    duration_s: null
+    distance_km: 150
+    altitude_start_m: 10668
+    altitude_end_m: 500
+    mach: 0.55
+    speed_mps: null
+    electric_fan_mode: off
+    engine_rating: idle
+
+  - name: approach_landing
+    segment_type: approach
+    duration_s: 480
+    distance_km: 28
+    altitude_start_m: 500
+    altitude_end_m: 0
+    mach: null
+    speed_mps: 70
+    electric_fan_mode: assist
+    engine_rating: approach
