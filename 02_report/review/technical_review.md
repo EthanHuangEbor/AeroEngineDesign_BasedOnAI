@@ -209,37 +209,100 @@ V0.2-04R 任务诊断与结果审计已完成：
 
 | 项目 | 状态 | 说明 |
 |------|------|------|
-| 风险表 | ✅ 已创建 | 已更新 |
-| 假设表 | ✅ 已创建并更新 | 含 V0.2-04 任务求解器假设 |
-| 结果表 | ✅ 已创建并更新 | 含 V0.2-04 输出 |
-| 防御 Q&A | ✅ 已创建并更新 | 含 V0.2-04 专项防御 |
+| 风险表 | ✅ 已创建 | 含 V0.2-05Q2 新增风险项 |
+| 假设表 | ✅ 已创建并更新 | 含 V0.2-05/Q/Q2 敏感性假设 |
+| 结果表 | ✅ 已创建并更新 | 含 V0.2-05/Q/Q2 输出 |
+| 防御 Q&A | ✅ 已创建并更新 | 含 V0.2-05/Q/Q2 专项防御 |
 
 ---
 
-## 10. 最终报告前阻塞项（Blocking Issues Before Final Report）
+## 10. V0.2-05/Q/Q2 敏感性分析验收
 
-以下问题必须在最终报告提交前解决：
+### 10.1 V0.2-05 验收
 
-| 序号 | 阻塞项 | 说明 | 依赖 |
+V0.2-05 已完成敏感性分析（225 行 OAT + 混合电网格扫描），作为概念级诊断性敏感性分析纳入报告。
+
+| V0.2-05 输出 | 状态 | 纳入文件 |
+|-------------|------|----------|
+| sensitivity_summary.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| sensitivity_case_details.csv | ✅ 已验收 | results_table.md |
+| sensitivity_constraints.csv | ✅ 已验收 | results_table.md |
+| sensitivity_best_candidates.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| sensitivity_corrected_constraint_summary.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+
+### 10.2 V0.2-05Q 验收
+
+V0.2-05Q 已完成敏感性一致性审计（名义回放 3/3 通过，推力单调性 6/6 通过）。
+
+| V0.2-05Q 输出 | 状态 | 纳入文件 |
+|---------------|------|----------|
+| sensitivity_consistency_audit_summary.csv | ✅ 已验收 | results_table.md |
+| sensitivity_nominal_replay_comparison.csv | ✅ 已验收 | results_table.md |
+
+### 10.3 V0.2-05Q2 验收
+
+V0.2-05Q2 已完成字段语义修复（分离 `approach_only_corrected_margin_N` 和 `corrected_all_segment_min_thrust_margin_N`）。
+
+| V0.2-05Q2 输出 | 状态 | 纳入文件 |
+|----------------|------|----------|
+| sensitivity_field_semantics_audit.csv | ✅ 已验收 | results_table.md |
+| sensitivity_feasibility_reclassified.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| sensitivity_non_approach_constraints.csv | ✅ 已验收 | 07_performance_analysis.md, results_table.md |
+| sensitivity_approach_classification.csv | ✅ 已验收 | results_table.md |
+| corrected_approach_input_decomposition.csv | ✅ 已验收 | results_table.md |
+
+### 10.4 V0.2-05/Q/Q2 验收结论
+
+**V0.2-05/Q/Q2 验收为诊断性敏感性分析（accepted for report ingestion as diagnostic sensitivity analysis）**：
+- 敏感性扫描框架已实现（10 个设计变量 OAT + 48 个混合电网格）
+- 三级约束分类体系已建立（原始/仅进近修正/全段修正）
+- 字段语义修复已完成（仅进近裕度与全段裕度字段分离）
+- 名义回放一致性验证通过（3/3）
+- 推力单调性检查通过（6/6）
+
+**V0.2-05/Q/Q2 不验收为最终可行 sizing（not accepted as final feasible sizing）**：
+- 全段修正可行设计数为 0
+- 非进近段推力裕度约束（下降段 197 行、起飞段 28 行）仍然存在
+- 混合电未满足电负荷（69 行）仍然存在
+- 仅进近修正候选（92 个）为诊断性筛选，非最终可行设计
+- 全部敏感性结果为概念级筛选输出
+
+---
+
+## 10.5 最终报告前阻塞项（Blocking Issues Before Final Concept Claim）
+
+以下阻塞项在 V0.2 范围内已诊断但未消解，须在 V0.3 中解决：
+
+| 序号 | 阻塞项 | 说明 | 状态 |
 |------|--------|------|------|
-| 1 | low_thrust_margin | 全部三个方案均存在推力裕度不足，需优化推力/阻力假设 | V0.2-05 敏感性分析 |
-| 2 | unmet_electric_load | 混合电方案进近阶段电负荷未满足（287117 Wh），需调整功率调度或储能 | V0.2-05 敏感性分析 |
-| 3 | hybrid mass penalty | 混合电系统 4200 kg 质量惩罚导致起飞代理指标恶化，需评估质量预算 | V0.2-05 敏感性分析 |
-| 4 | MTOW sizing margin | 混合电方案 estimated MTOW 超出初始假设 6143 kg，需迭代 sizing | V0.2-05 敏感性分析 |
-| 5 | sensitivity analysis | V0.2-05 敏感性分析为必需后续工作，用于确定设计方向和约束消除路径 | V0.2-05 |
-| 6 | conservative benefit wording | 所有收益声明须在约束消除后使用保留措辞，当前不选择最终结论用语 | V0.2-05 |
+| 1 | 非进近推力裕度（下降段） | 下降段怠速代理推力/阻力平衡在全部 225 行中均存在裕度不足，197 行为主导限制段 | V0.2-05Q2 已诊断，V0.3 解决 |
+| 2 | 下降/起飞段模型 | 下降段和起飞段推力调度/阻力模型需细化 | V0.2-05Q2 已诊断，V0.3 解决 |
+| 3 | 混合电未满足电负荷 | 69 行混合电方案电负荷未满足，需功率调度/储能策略调整 | V0.2-05Q2 已诊断，V0.3 解决 |
+| 4 | 混合电质量惩罚 | 4200 kg 混合电系统质量导致 MTOW 裕度紧张、起飞代理恶化 | V0.2-04 已诊断，V0.3 迭代 |
+| 5 | 低速度气动/吹气襟翼验证 | 吹气襟翼增升系数和起飞/着陆代理为占位符/代理 | V0.2-01 占位符，V0.3 升级 |
+| 6 | 部件级发动机循环验证 | 发动机代理模型（TSFC 占位符）非部件级热力学模型 | V0.2-02 代理，V0.3 升级 |
+| 7 | 重量组成细化 | OEW、混合电系统质量基于初始假设 | V0.3 重量逐项核查 |
+| 8 | MTOW sizing 迭代 | 全部方案超出初始 MTOW 87500 kg | V0.3 sizing 闭合 |
 
 ---
 
 ## 11. 审查结论
 
-**通过条件**：所有 11 个报告章节和 4 个配套文件均已创建，关键声明已纳入证据链，明确排除声明已在相关章节中声明。
+**报告可继续进行，但须遵守保守声明纪律（Final report may proceed only with conservative claim discipline）**：
+- 所有 V0.2-05/Q/Q2 结果为诊断性敏感性分析输出
+- 不得声称已产生最终可行设计
+- 不得声称已验证的燃油消耗降低
+- 全段修正可行设计为 0 的事实须在报告中显式呈现
+- 仅进近修正候选（92 个）须明确标注为诊断性筛选
+- V0.3 为必需的下一步，并非可选项
 
-**待解决**：配套文件（风险表、假设表、结果表、防御 Q&A）须在本审查周期内完成。
+**通过条件**：所有 11 个报告章节和 4 个配套文件均已创建并更新至 V0.2-05Q2，关键声明已纳入证据链（声明 100–111），明确排除声明已在相关章节中声明。
 
-**建议**：V0.2 仿真闭合后，应逐一更新证据-声明矩阵中的 MO 占位符项，确保声明可追溯至实际仿真输出。
+**待解决**：7 个阻塞项（见 §10.5）须在 V0.3 中解决后方可提出最终概念声明。
+
+**建议**：V0.3 应聚焦于约束消解和尺寸迭代，而非扩展新功能。在约束消解前，不选择最终结论措辞。
 
 ---
 
-**审查人**：V0.2 report bootstrap engineer
-**审查版本**：Draft v0.1
+**审查人**：V0.2-05/Q/Q2 sensitivity-result ingestion and final-claim discipline reviewer
+**审查版本**：V0.2-05Q2

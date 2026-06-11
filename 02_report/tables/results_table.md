@@ -400,7 +400,151 @@
 - 混合电系统能量自洽（hybrid case 存在 unmet_electric_load）
 - 最终可行 sizing（estimated MTOW 超出初始假设，需迭代）
 
-## 11. 结果表更新规则
+## 13. V0.2-05/Q/Q2 敏感性分析输出（已填充）
+
+**V0.2-05/Q/Q2 阶段已完成敏感性扫描、约束重分类和字段语义修复，标注为 Model Output。全部结果为诊断用途，不作为最终可行设计验证。**
+
+### 13.1 sensitivity_summary.csv
+
+**状态**：✅ 已填充（Model Output，诊断性输出）
+
+| 参数 | 值 | 备注 |
+|------|-----|------|
+| 总行数 | 225 行 | 10 个设计变量 OAT 扫描 + 48 个混合电网格 |
+| 案例族 | baseline / one_at_a_time / selected_grid | 3 类案例族 |
+| 推进方案 | baseline_fixed_cycle_turbofan / adaptive_cycle_turbofan / adaptive_cycle_plus_hybrid_electric | 3 种推进配置 |
+| 关键字段 | mission_fuel_kg, fuel_delta_vs_baseline_pct, estimated_mtow_kg, raw_all_segment_min_thrust_margin_N, approach_only_corrected_margin_N, corrected_all_segment_min_thrust_margin_N | 三级约束裕度和燃油输出 |
+| 全段可行设计数 | 0 | 无任何案例通过全段修正可行性筛选 |
+
+### 13.2 sensitivity_case_details.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| 参数 | 值 | 备注 |
+|------|-----|------|
+| 总行数 | 225 行 | 逐案设计变量配置 |
+| design_variable_summary | 每个案例的变更参数 | 扫查变量值明细 |
+| min_margin_segment_name | 全段修正限制段 | descent / takeoff |
+| raw_min_margin_segment_name | 原始限制段 | approach_landing 为主 |
+
+### 13.3 sensitivity_constraints.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| 参数 | 值 | 备注 |
+|------|-----|------|
+| 总行数 | 1832 行 | 逐案逐段逐约束分类 |
+| classification_basis | raw / corrected | 原始 vs 修正分类 |
+| scope | mission / segment | 任务级 vs 航段级 |
+| constraint_flag | low_thrust_margin, unmet_electric_load, low_net_thrust | 约束类型 |
+
+### 13.4 sensitivity_best_candidates.csv
+
+**状态**：✅ 已填充（Model Output，诊断性候选，非最终可行方案）
+
+| 参数 | 值 | 备注 |
+|------|-----|------|
+| 总行数 | 11 行 | 前 11 个仅进近修正候选 |
+| candidate_class | approach_corrected_only_candidate | 全部标记为仅进近修正候选 |
+| not_validated_note | screening_only_no_validation_claim | 所有候选明确标注"不验证" |
+| 最优化自适应方案 fuel | 约 10786 kg（V05-0009_adaptive, cruise_ld=18） | 受 descent 段约束限制 |
+| 最有前景混合电方案 fuel | 约 11923 kg（V05-0148/0149_hybrid, thrust=150kN, cruise_ld=18） | 受 descent 段约束限制 + 未满足电负荷 |
+
+### 13.5 sensitivity_corrected_constraint_summary.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| 指标 | 值 |
+|------|-----|
+| raw low_thrust_margin | 225 / 225 |
+| approach_only_corrected_low_thrust_margin | 121 / 225 |
+| corrected_all_segment_low_thrust_margin | 225 / 225 |
+| approach_only_model_sensitive | 104 / 225 |
+| sizing_or_schedule_low_thrust | 225 / 225 |
+| unmet_electric_load | 69 / 225 |
+| mtow_exceeded | 67 / 225 |
+| feasible_basic_raw | 0 |
+| feasible_basic_approach_corrected | 92 |
+| feasible_basic_all_segment_corrected | 0 |
+
+### 13.6 sensitivity_approach_classification.csv
+
+**状态**：✅ 已填充（Model Output）
+
+225 行，逐行包含 `raw_all_segment_min_thrust_margin_N`、`approach_only_corrected_margin_N`、`corrected_all_segment_min_thrust_margin_N` 以及 `approach_only_model_sensitive` 和 `sizing_or_schedule_low_thrust` 布尔标志。
+
+### 13.7 sensitivity_field_semantics_audit.csv
+
+**状态**：✅ 已填充（Model Output）
+
+V0.2-05Q2 字段语义修复审计，定义了以下新增字段：
+- `approach_only_corrected_margin_N`：仅进近段 V0.2-04S 下降力平衡裕度
+- `corrected_all_segment_min_thrust_margin_N`：全段修正最小裕度
+- `non_approach_min_thrust_margin_N`：非进近段最小原始推力裕度
+- `feasible_basic_approach_corrected`：仅进近修正诊断性筛选（忽略非进近约束）
+- `feasible_basic_all_segment_corrected`：全段修正可行性代理
+
+### 13.8 sensitivity_feasibility_reclassified.csv
+
+**状态**：✅ 已填充（Model Output）
+
+225 行，包含逐行的 `raw_all_segment_min_thrust_margin_N`、`approach_only_corrected_margin_N`、`non_approach_min_thrust_margin_N`、`corrected_all_segment_min_thrust_margin_N`、`corrected_limiting_segment` 和全部可行性标志（raw/approach_corrected/all_segment_corrected）。
+
+### 13.9 sensitivity_non_approach_constraints.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| 参数 | 值 | 备注 |
+|------|-----|------|
+| 总行数 | 225 行 | 逐行非进近约束分解 |
+| 主导非进近限制段 | descent: 197 行, takeoff: 28 行 | descent 占 87.6% |
+| suspected_driver | descent_surrogate_idle_drag_balance | 全部下降段行均为此驱动因子 |
+
+### 13.10 sensitivity_consistency_audit_summary.csv
+
+**状态**：✅ 已填充（Model Output）
+
+| 检查项 | 结果 |
+|--------|------|
+| 名义回放一致性 | 3/3 通过（≤ 1000 N） |
+| 推力单调性 | 6/6 通过 |
+| 字段语义不匹配 | 0（Q2 已修复） |
+
+### 13.11 sensitivity_nominal_replay_comparison.csv
+
+**状态**：✅ 已填充（Model Output）
+
+3 行（3 个推进方案），V0.2-04S 仅进近下降裕度与 V0.2-05Q2 仅进近修正裕度比较，margin_difference_q2_approach_only_minus_v04s_N 全部为零（精确回放）。
+
+### 13.12 corrected_approach_input_decomposition.csv
+
+**状态**：✅ 已填充（Model Output）
+
+仅进近修正的输入分解明细，用于追溯修正计算的输入值。
+
+### 13.13 输出图表
+
+| 图表 | 状态 | 备注 |
+|------|------|------|
+| `approach_only_vs_all_segment_margin.png` | ✅ 已生成 | 仅进近 vs 全段裕度对比散点图 |
+| `sensitivity_feasibility_reclassified.png` | ✅ 已生成 | 可行性重分类柱状图 |
+| `non_approach_constraint_drivers.png` | ✅ 已生成 | 非进近约束驱动因子（descent vs takeoff） |
+| `raw_vs_corrected_thrust_margin.png` | ✅ 已生成 | 原始 vs 修正推力裕度对比 |
+| `corrected_constraint_feasibility_map.png` | ✅ 已生成 | 修正约束可行性地图 |
+| `approach_model_sensitivity_classification.png` | ✅ 已生成 | 进近模型敏感性分类桑基图 |
+| `v04s_vs_v05r_margin_replay.png` | ✅ 已生成 | V0.2-04S vs V0.2-05R 裕度回放 |
+
+### 13.14 V0.2-05/Q/Q2 不证明的内容
+
+以下内容**不因 V0.2-05/Q/Q2 输出而得到证明**：
+- 经验证的燃油消耗降低（全段可行设计为 0）
+- 认证级航程（所有案例均受非进近段约束限制）
+- STOL 能力（起飞/着陆代理指标非认证场长）
+- 已验证的可行设计（全段修正后可行数为 0）
+- 最终最优方案（所有候选均为诊断性筛选输出）
+- 约束已消除（下降段和起飞段约束仍然存在）
+- 混合电能量自洽（69 行仍存在未满足电负荷）
+- 最优混合电方案（混合电方案受质量/电负荷/全段裕度三重约束）
 
 1. 每项仿真完成后，须在规定时间内更新对应结果表
 2. 更新须记录仿真版本、日期和输入参数

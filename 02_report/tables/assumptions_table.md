@@ -91,7 +91,33 @@
 | L-06 | V0.2-02 发动机代理 | 已完成 | FROZEN | V0.2-02 输出 | TSFC、推力、轴功率 penalty（概念代理） |
 | L-07 | V0.2-03 混合电系统/电气总线/SOC | 已完成 | FROZEN | V0.2-03 输出 | 功率时间线、SOC 边界、风扇失效 |
 | L-08 | V0.2-04 分段任务剖面求解器 | 已完成 | Model Output | V0.2-04 输出 | 约束告警状态，不作为最终收益声明 |
-| L-09 | V0.2-05 敏感性分析 | 未完成 | 待实现 | CLAUDE.md | 参数影响龙卷风图 |
+| L-09 | V0.2-05 敏感性分析 | 已完成（诊断性） | Model Output | sensitivity_summary.csv | 225 行 OAT + 网格扫描，诊断性输出 |
+
+## 敏感性分析假设（V0.2-05/Q/Q2）
+
+| ID | 参数 | 值 | 状态 | 来源 | 备注 |
+|----|------|------|------|------|------|
+| S-01 | 敏感性扫描策略 | one_at_a_time + selected_grid | DA | sensitivity.yaml | 非全因子，OAT 为主 |
+| S-02 | 总案例数 | 225 行 | Model Output | sensitivity_summary.csv | 含 3 个 baseline + 78 个 OAT + 144 个 selected_grid |
+| S-03 | 设计变量数 | 10 个 | DA | sensitivity.yaml | 推力/TSFC/L/D/MTOW/电功率/电池容量/发电机功率/混合电质量系数/吹气襟翼/进近下降角 |
+| S-04 | 主机推力扫描范围 | 115000 / 130000 / 150000 N/台 | DA | sensitivity.yaml | 3 个水平 |
+| S-05 | 巡航 TSFC 乘子范围 | 0.90 / 1.00 / 1.10 | DA | sensitivity.yaml | 3 个水平 |
+| S-06 | 巡航 L/D 范围 | 13.0 / 15.0 / 17.0 / 18.0 | DA | sensitivity.yaml | 4 个水平 |
+| S-07 | MTOW 上限范围 | 87500 / 90000 / 95000 kg | DA | sensitivity.yaml | 3 个水平 |
+| S-08 | 总电功率范围 | 0 / 2 / 4 / 6 / 8 MW | DA | sensitivity.yaml | 5 个水平 |
+| S-09 | 电池容量范围 | 250000 / 500000 / 1000000 Wh | DA | sensitivity.yaml | 3 个水平 |
+| S-10 | 发电机功率范围 | 2 / 4 / 6 / 8 MW | DA | sensitivity.yaml | 4 个水平 |
+| S-11 | 混合电质量系数范围 | 150 / 250 / 400 kg/MW | DA | sensitivity.yaml | 3 个水平 |
+| S-12 | 吹气襟翼 CLmax 增量分数 | 0.0 / 0.10 / 0.20 / 0.40 | DA | sensitivity.yaml | 4 个水平 |
+| S-13 | 进近下降角范围 | -2.5° / -3.0° / -3.5° | DA | sensitivity.yaml | 3 个水平 |
+| S-14 | 约束分类体系 | 三级：原始 / 仅进近修正 / 全段修正 | Model Output | sensitivity_corrected_constraint_summary.csv | V0.2-05Q2 字段语义修复后建立 |
+| S-15 | 仅进近修正裕度定义 | V0.2-04S 下降力平衡公式计算仅进近段裕度 | DA | sensitivity_field_semantics_audit.csv | 可与 V0.2-04S approach_landing_diagnostics 回放 |
+| S-16 | 全段修正裕度定义 | min(仅进近修正裕度, 非进近段最小原始裕度) | DA | sensitivity_field_semantics_audit.csv | 用于全段可行性判断 |
+| S-17 | 可行性基本仅进近修正定义 | 无仅进近修正低推力 + 无未满足电负荷 + 在 MTOW 范围内 | DA | sensitivity_field_semantics_audit.csv | 诊断性筛选，忽略非进近段约束 |
+| S-18 | 可行性基本全段修正定义 | 无全段修正低推力 + 无未满足电负荷 + 在 MTOW 范围内 | DA | sensitivity_field_semantics_audit.csv | 主要修正可行性代理 |
+| S-19 | 候选类别定义 | all_segment_infeasible / approach_corrected_only_candidate / approach_model_sensitive | Model Output | sensitivity_best_candidates.csv | 全部候选标注 screening_only_no_validation_claim |
+| S-20 | 候选不等于验证 | 任何候选类别均不作为已验证设计 | DA | CLAUDE.md | 所有候选为筛选输出 |
+| S-21 | V0.3 为必需下一步 | 约束消解、尺寸迭代、设计点闭合 | FW | 10_conclusion.md | V0.3 sizing/细化 |
 
 ## 任务求解器假设（V0.2-04）
 

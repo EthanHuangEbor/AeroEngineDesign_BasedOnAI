@@ -77,7 +77,7 @@
 | TSFC 模式图 | ✅ 已填充 | V0.2-02 TSFC 模式图（7.9节） |
 | SOC 剖面 | ✅ 已填充 | V0.2-03 SOC 时间线（7.10节） |
 | 起飞性能代理 | ✅ 已填充（代理指标） | V0.2-04 起飞/着陆代理（7.12节），非认证场长 |
-| 敏感性龙卷风图 | 待仿真结果填充 | 待 V0.2-05 敏感性分析 |
+| 敏感性龙卷风图 | ✅ 已填充 | V0.2-05/Q/Q2 敏感性分析、约束重分类与候选筛选（7.13节） |
 
 ## 7.8 V0.2-01 大气、燃料与基础气动模型输出
 
@@ -388,4 +388,168 @@ V0.2-04 层已完成分段任务求解器（segmented mission solver），对三
 | 层级 | 状态 | 说明 |
 |------|------|------|
 | V0.2-04 分段任务剖面求解器 | ✅ 已完成（约束告警） | 本节所述内容 |
-| V0.2-05 敏感性分析 | ⏳ 必需后续工作 | 约束消除与最终结论措辞选择 |
+| V0.2-05 敏感性分析 | ✅ 已完成（约束告警） | 本节所述内容 |
+| V0.2-05Q 一致性审计 | ✅ 已完成 | 推力单调性和名义回放检查 |
+| V0.2-05Q2 字段语义修复 | ✅ 已完成 | 分离仅进近修正和全段修正约束 |
+
+### 7.13 V0.2-05/Q/Q2 敏感性分析、约束重分类与候选筛选
+
+V0.2-05/Q/Q2 阶段完成了完整的敏感性扫描、一致性审计和字段语义修复，对 225 行敏感性案例进行了三级约束分类（原始、仅进近修正、全段修正），并筛选出 92 个仅进近修正候选方案和 0 个全段可行方案。**所有结果均为诊断性模型输出，不作为最终设计验证。**
+
+#### 7.13.1 敏感性分析摘要
+
+| 指标 | 值 | 说明 |
+|------|-----|------|
+| 总敏感性案例数 | 225 | 10 个设计变量 OAT 扫描 + 24 个混合电网格扫描 |
+| 原始低推力告警数量 | 225 | 使用原始任务求解器约束分类 |
+| 仅进近修正后低推力数量 | 121 | 使用 V0.2-04S 下降力平衡修正仅进近段分类 |
+| 全段修正后低推力数量 | 225 | 进近修正 + 非进近段约束均纳入 |
+| 进近模型敏感数量 | 104 | 原始进近限制但仅进近修正后清除的低推力案例 |
+| 可行性基本原始数量 | 0 | 原始约束下无任何案例通过基本筛选 |
+| 可行性基本仅进近修正数量 | 92 | 仅进近修正后通过基本筛选的案例数 |
+| 可行性基本全段修正数量 | 0 | 全段修正后通过基本筛选的案例数（无） |
+| 混合电未满足电负荷行数 | 69 | 混合电方案（hybrid）存在未满足电负荷的行数 |
+| MTOW 超限行数 | 67 | 超出配置 MTOW 上限的行数 |
+| 名义回放一致性 | 3/3 一致（≤ 1000 N） | V0.2-05Q2 仅进近修正裕度与 V0.2-04S 一致 |
+| 推力单调性检查 | 6/6 通过 | 115000 / 130000 / 150000 N/台 推力单调性通过 |
+
+#### 7.13.2 三级约束分类体系解释
+
+V0.2-05Q2 引入了三级约束分类体系，明确区分不同置信度的约束信号：
+
+**A. 原始任务约束（raw_all_segment_min_thrust_margin_N）**
+- 来源：任务求解器直接输出的全段最小推力裕度
+- 问题：进近着陆段的推力裕度使用了准稳态水平力平衡公式，该公式在下降进近条件下低估了可用推力
+- 原始低推力计数 225 行**不能单独解读**，因为进近段约束可能受模型公式敏感性影响
+
+**B. 仅进近修正约束（approach_only_corrected_margin_N）**
+- 来源：使用 V0.2-04S 下降力平衡公式重新计算的仅进近段裕度
+- 范围：**仅**替换进近着陆段的约束判断，非进近段保持原始约束不变
+- 仅进近修正低推力计数 121 行，其中 104 行（121−225 的差值，即 225−121=104）的原始进近约束被识别为进近模型敏感
+- **重要**：仅进近修正候选（92个）为诊断性筛选输出，**不作为最终可行设计**，因为非进近段约束未纳入考察
+
+**C. 全段修正约束（corrected_all_segment_min_thrust_margin_N）**
+- 来源：取 `approach_only_corrected_margin_N` 和 `non_approach_min_thrust_margin_N` 的最小值
+- 范围：进近修正 + 非进近段（爬升/巡航/下降/起飞）约束同时纳入
+- 全段修正低推力计数 225 行——说明全部案例在至少一个非进近段存在低推力裕度
+- 全段修正可行性计数 0——**当前无任何设计点满足所有航段推力裕度要求**
+
+#### 7.13.3 约束重分类表（表 A）
+
+| 约束维度 | 涉及行数 | 说明 |
+|----------|----------|------|
+| 原始低推力（raw_low_thrust_margin） | 225 / 225 | 原始任务求解器全段低推力计数 |
+| 仅进近修正低推力（approach_only_corrected_low_thrust_margin） | 121 / 225 | 仅进近段使用 V0.2-04S 下降力平衡修正 |
+| 全段修正低推力（corrected_all_segment_low_thrust_margin） | 225 / 225 | 进近修正 + 非进近段约束同时纳入 |
+| 进近模型敏感（approach_model_sensitive） | 104 / 225 | 原始进近限制但仅进近修正后清除 |
+| 尺度或调度低推力（sizing_or_schedule_low_thrust） | 225 / 225 | 进近模型修正后仍存在的低推力（非进近段主导） |
+| 未满足电负荷（unmet_electric_load） | 69 / 225 | 混合电方案的电负荷缺口（未被进近修正改变） |
+| MTOW 超限（mtow_exceeded） | 67 / 225 | 超出配置 MTOW 上限 |
+| 可行性基本原始 | 0 / 225 | 原始约束下无案例通过 |
+| 可行性基本仅进近修正 | 92 / 225 | 仅进近修正后 92 个案例通过基本筛选 |
+| 可行性基本全段修正 | 0 / 225 | 全段修正后无案例通过基本筛选 |
+
+#### 7.13.4 候选类别表（表 B）
+
+V0.2-05Q2 将全部 225 行分为以下候选类别：
+
+| 候选类别 | 计数 | 定义 | 状态 |
+|----------|------|------|------|
+| 全段不可行（all_segment_infeasible） | 225 | 全段修正后至少一个非进近段存在低推力裕度 | 全部案例均属此类 |
+| 仅进近修正候选（approach_corrected_only_candidate） | 92 | 仅进近修正后进近约束清除，但非进近段约束仍存在 | 诊断性筛选，非可行设计 |
+| 进近模型敏感案例（approach_model_sensitive） | 104 | 原始进近限制但仅进近修正后清除 | 说明进近模型公式敏感性 |
+| 混合电未满足电负荷案例 | 69 | 混合电方案存在未满足电负荷 | 混合电调度/储能需调整 |
+| 全段可行设计（all_segment_feasible） | 0 | 全段修正后所有约束均清除 | **尚不存在** |
+
+**注意**：所有候选类别均为筛选输出（screening output only），**不得将任何候选行作为已验证的设计点呈现**。
+
+#### 7.13.5 最佳候选表（表 C）
+
+以下为仅进近修正后燃料最低的前 5 个候选方案（全部受非进近段约束限制）：
+
+| case_id | propulsion_case | 关键设计变量 | mission_fuel_kg | approach_only_corrected_margin_N | corrected_all_segment_min_thrust_margin_N | 修正后限制段 | 候选类别 |
+|---------|----------------|-------------|-----------------|-------------------------------|----------------------------------------|------------|----------|
+| V05-0009_adaptive | adaptive_cycle_turbofan | cruise_ld=18 | 10786.15 | 18237.21 | -39796.59 | descent | approach_corrected_only_candidate |
+| V05-0004_adaptive | adaptive_cycle_turbofan | cruise_tsfc_multiplier=0.9 | 11035.24 | 18228.41 | -39792.38 | descent | approach_corrected_only_candidate |
+| V05-0008_adaptive | adaptive_cycle_turbofan | cruise_ld=17 | 11286.13 | 18207.11 | -39808.56 | descent | approach_corrected_only_candidate |
+| V05-0148_hybrid | adaptive_cycle_plus_hybrid_electric | thrust=150000, cruise_ld=18, total_electric=0 | 11923.00 | 39390.40 | -36613.03 | descent | approach_corrected_only_candidate |
+| V05-0149_hybrid | adaptive_cycle_plus_hybrid_electric | thrust=150000, cruise_ld=18, total_electric=0 | 11923.00 | 39390.40 | -36613.03 | descent | approach_corrected_only_candidate |
+
+数据来源：`sensitivity_best_candidates.csv`。所有数值为 Model Output，不作为验证的性能声明。
+
+#### 7.13.6 关键观察
+
+**1. 原始低推力计数 225/225 不能单独解读**
+
+全部 225 行在原始任务求解器约束下均为低推力告警——但这并不意味着设计不可行。V0.2-05Q2 证明了 104 行（46.2%）的进近段低推力与模型公式敏感性有关，在仅进近修正后清除。
+
+**2. 仅进近修正候选 92 个不是最终可行设计**
+
+仅进近修正后 92 个案例通过了基本筛选（无仅进近低推力、无未满足电负荷、在 MTOW 范围内），但这些候选的非进近段约束**仍然存在**：
+- 主要限制段：下降（descent），受怠速代理推力和阻力平衡假设影响
+- 次要限制段：起飞（takeoff），部分高电功率案例中起飞成为限制段
+
+**3. 全段约束仍然存在——全段可行设计为 0**
+
+全段修正后可行数为 0 的核心原因：
+- 下降段：怠速推力代理无法满足下降段阻力平衡，这是当前模型中最顽固的非进近约束
+- 起飞段：部分混合电案例中轴功率提取 penalty 导致起飞可用推力不足
+- 巡航和爬升段：部分案例也存在低推力裕度
+
+**4. 主导剩余非进近约束：下降段为主，起飞段为辅**
+
+`sensitivity_non_approach_constraints.csv` 显示：
+- 下降段为非进近限制段的行数：197 行（87.6%），疑似驱动因素均为 `descent_surrogate_idle_drag_balance`
+- 起飞段为非进近限制段的行数：28 行（12.4%），与高电功率或低发电机容量相关
+
+**5. 混合电未满足电负荷仍然显式存在**
+
+69 行混合电方案存在未满足电负荷（287117 Wh 为主，部分案例因电池/发电机调整而变化）。电负荷约束独立于推力裕度分类，不受进近模型修正影响。
+
+**6. 自适应循环燃油趋势为条件性模型趋势**
+
+自适应循环方案（adaptive）在所有 OAT 扫描中显示方向性燃油优势（约 -12.9% 至 -21.3%相对于基准），但此趋势：
+- 依赖于当前代理模型 TSFC 假设
+- 受 descent 段约束限制
+- **不得作为经验证的燃油消耗降低呈现**
+
+**7. 混合电方案受质量/电负荷/全段裕度三重约束**
+
+混合电方案（hybrid）的表观燃油差量（约 -0.3%至 -15.8%）同时受：
+- 下降段推力裕度不足
+- 进近段电负荷未满足
+- 混合电系统质量惩罚（4200 kg）
+- MTOW 裕度紧张（hybrid 方案约 93643 kg）
+
+#### 7.13.7 灵敏度分析输出文件
+
+| 输出文件 | 类型 | 支持的报告内容 | 不证明的内容 |
+|----------|------|----------------|--------------|
+| `sensitivity_summary.csv` | Model Output | 225 行敏感性案例摘要 | 已验证的可行设计 |
+| `sensitivity_case_details.csv` | Model Output | 逐案设计变量配置 | 最优方案 |
+| `sensitivity_constraints.csv` | Model Output | 三级约束逐段分解 | 约束已消除 |
+| `sensitivity_best_candidates.csv` | Model Output | 诊断性候选列表 | 最终可行方案 |
+| `sensitivity_corrected_constraint_summary.csv` | Model Output | 约束重分类汇总 | 验证的设计点 |
+| `sensitivity_approach_classification.csv` | Model Output | 逐行仅进近 vs 全段分类 | 最终可行性 |
+| `sensitivity_field_semantics_audit.csv` | Model Output | 字段语义审计 | — |
+| `sensitivity_feasibility_reclassified.csv` | Model Output | 可行性重分类 | 验证的设计 |
+| `sensitivity_non_approach_constraints.csv` | Model Output | 非进近约束驱动因子 | 约束消除 |
+| `sensitivity_consistency_audit_summary.csv` | Model Output | 一致性审计汇总 | — |
+| `sensitivity_nominal_replay_comparison.csv` | Model Output | V0.2-04S vs V0.2-05Q2 回放 | — |
+| `corrected_approach_input_decomposition.csv` | Model Output | 仅进近修正输入分解 | — |
+| `approach_only_vs_all_segment_margin.png` | Model Output | 仅进近 vs 全段裕度对比 | — |
+| `sensitivity_feasibility_reclassified.png` | Model Output | 可行性重分类可视化 | — |
+| `non_approach_constraint_drivers.png` | Model Output | 非进近约束驱动因子 | — |
+| `raw_vs_corrected_thrust_margin.png` | Model Output | 原始 vs 修正推力裕度 | — |
+| `corrected_constraint_feasibility_map.png` | Model Output | 修正约束可行性地图 | — |
+| `approach_model_sensitivity_classification.png` | Model Output | 进近模型敏感性分类 | — |
+| `v04s_vs_v05r_margin_replay.png` | Model Output | V0.2-04S vs V0.2-05R 回放 | — |
+
+#### 7.13.8 V0.2-05/Q/Q2 与 V0.3 的关系
+
+| 层级 | 状态 | 说明 |
+|------|------|------|
+| V0.2-05 敏感性分析 | ✅ 已完成 | 本节所述内容 |
+| V0.2-05Q 一致性审计 | ✅ 已完成 | 推力单调性和名义回放检查 |
+| V0.2-05Q2 字段语义修复 | ✅ 已完成 | 分离仅进近修正和全段修正约束 |
+| V0.3 sizing/细化 | ⏳ 必需后续工作 | 约束消解、尺寸迭代、设计点闭合 |

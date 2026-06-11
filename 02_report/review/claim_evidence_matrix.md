@@ -114,7 +114,19 @@
 | 96 | 不得声称经验证的燃油消耗降低 | MO | model_limitations.md | 约束消除前不得声称 |
 | 97 | 不得声称认证级航程 | MO | model_limitations.md | 概念分段模型 |
 | 98 | 不得声称 STOL 能力 | MO | model_limitations.md | 起飞/着陆代理指标非认证场长 |
-| 99 | V0.2-05 敏感性分析为必需后续工作 | FW | CLAUDE.md | 约束消除和最终结论措辞选择依赖 V0.2-05 |
+| 99 | V0.2-05 敏感性分析为必需后续工作（已完成） | MO | sensitivity_summary.csv | V0.2-05/Q/Q2 已完成 |
+| 100 | V0.2-05 敏感性分析已实现 | MO | sensitivity_summary.csv, sensitivity_case_details.csv | 225 行 OAT + 网格扫描 |
+| 101 | V0.2-05Q 一致性审计已实现 | MO | sensitivity_consistency_audit_summary.csv | 名义回放 3/3 通过，推力单调性 6/6 通过 |
+| 102 | V0.2-05Q2 字段语义修复已实现 | MO | sensitivity_field_semantics_audit.csv | 分离仅进近修正和全段修正约束字段 |
+| 103 | 原始低推力计数为 225 | MO | sensitivity_corrected_constraint_summary.csv | 全部 225 行原始全段均有低推力 |
+| 104 | 进近模型敏感计数为 104 | MO | sensitivity_corrected_constraint_summary.csv | 原始进近限制但仅进近修正后清除 |
+| 105 | 仅进近修正候选计数为 92 | MO | sensitivity_corrected_constraint_summary.csv | 仅进近修正后通过基本筛选 |
+| 106 | 全段可行设计数量为 0 | MO | sensitivity_corrected_constraint_summary.csv | 全段修正后无案例通过可行性 |
+| 107 | 混合电未满足电负荷仍存在于 69 行 | MO | sensitivity_corrected_constraint_summary.csv | 电负荷约束独立于进近修正 |
+| 108 | 非进近约束主导全段不可行 | MO | sensitivity_non_approach_constraints.csv | 下降段 197 行、起飞段 28 行 |
+| 109 | 未声称任何已验证的可行设计 | MO | sensitivity_best_candidates.csv | 全部候选标注 screening_only_no_validation_claim |
+| 110 | 未声称经验证的燃油消耗降低 | MO | V0.2-05Q2 stage_manifest.md | 全段可行设计为 0，约束消除前不得声称 |
+| 111 | V0.3 sizing/细化为必需后续工作 | FW | CLAUDE.md, 10_conclusion.md | 约束消解、尺寸迭代、设计点闭合 |
 
 ## 声明追溯规则
 
