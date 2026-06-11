@@ -83,3 +83,10 @@
 - Corrected feasible candidates, if present in later scans, are proxy screening candidates and not validated designs.
 - Hybrid electric load, MTOW, and sizing/schedule constraints remain explicit and are not hidden by the approach correction.
 - No final fuel-burn, range, STOL, noise, safety, or certification claim is made.
+
+## V0.2-05Q Sensitivity consistency audit limitations
+
+- This audit checks internal consistency between V0.2-04S approach diagnostics and V0.2-05R sensitivity classifications.
+- It does not validate the physical accuracy of either model.
+- Monotonicity checks are diagnostic only and are not design certification.
+- Any candidate remains concept-level only, even if a diagnostic monotonicity check passes.

@@ -13,6 +13,7 @@
 - V0.2-04S approach/landing segment audit
 - V0.2-05 sensitivity analysis and candidate screening
 - V0.2-05R corrected sensitivity constraint classification
+- V0.2-05Q sensitivity consistency and monotonicity audit
 
 ## Stage Audit Notes
 
@@ -69,3 +70,10 @@ These deltas are diagnostic model outputs only; they are not verified fuel-burn 
 - Feasible basic corrected count: 0.
 - Hybrid unmet electric load remains in 69 sensitivity rows.
 - Report ingestion may proceed only with both raw and corrected classifications visible; no V0.2-05R row is validated.
+
+## Known V0.2-05Q Sensitivity Consistency Audit Status
+
+- V0.2-05Q nominal replay is not internally consistent: 3 of 3 nominal rows differ by more than 1000 N between V0.2-04S approach-only descent margin and the V0.2-05R reported corrected minimum.
+- Engine thrust monotonicity passes for the audited 115000, 130000, and 150000 N/engine cases.
+- Suspected cause: V0.2-05R labels an all-segment corrected minimum as `corrected_approach_min_thrust_margin_N`, while V0.2-04S reports approach-only descent-force-balance margin.
+- Report ingestion must wait for V0.2-05Q2 repair that splits approach-only corrected margin from all-segment corrected minimum.

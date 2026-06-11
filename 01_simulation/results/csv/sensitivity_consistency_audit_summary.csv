@@ -1,0 +1,10 @@
+metric,value,explanation,recommended_next_action
+nominal_replay_consistent_count,0,nominal V0.2-04S descent margin matches V0.2-05R margin within 1000 N,
+nominal_replay_inconsistent_count,3,nominal rows where V0.2-05R reported margin does not replay V0.2-04S approach-only margin,
+thrust_monotonicity_pass_count,6,non-reference thrust steps where available thrust and corrected approach margin do not worsen,
+thrust_monotonicity_fail_count,0,non-reference thrust steps where monotonicity fails,
+suspected_override_application_issue_count,0,monotonicity failures suggesting thrust override did not propagate,
+suspected_available_thrust_issue_count,0,monotonicity failures suggesting available-thrust calculation mismatch,
+suspected_weight_or_drag_explanation_count,0,monotonicity failures explained by weight or drag increases,
+suspected_classification_field_mismatch_count,3,V0.2-05R field compares all-segment corrected minimum against V0.2-04S approach-only margin,
+recommended_next_action,V0.2-05Q2 repair required: split approach-only corrected margin from all-segment corrected minimum before report ingestion.,next action before report ingestion or V0.2-05R acceptance,V0.2-05Q2 repair required: split approach-only corrected margin from all-segment corrected minimum before report ingestion.

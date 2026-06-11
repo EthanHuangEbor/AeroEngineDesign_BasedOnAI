@@ -87,3 +87,10 @@
 - Candidate status: feasible basic raw 0 and feasible basic corrected 0; best candidates remain diagnostic screening rows and are not validated.
 - Tests run: sensitivity corrected-constraint tests, full script chain, and pytest.
 - Open limitations: hybrid unmet electric load remains in 69 rows, and low-thrust margin still requires sizing/schedule refinement before report claims.
+
+# Daily Log 2026-06-10 V0.2-05Q
+
+- Consistency audit files created: `run_05q_consistency_audit.py`, nominal replay comparison, corrected approach input decomposition, engine thrust monotonicity audit, and consistency summary outputs.
+- Nominal replay result: 3 of 3 nominal rows are inconsistent because V0.2-05R reports an all-segment corrected minimum where V0.2-04S reports approach-only corrected margin.
+- Monotonicity result: engine thrust monotonicity passes for the audited 115000, 130000, and 150000 N/engine cases.
+- Recommended next action: V0.2-05Q2 repair is required to split approach-only corrected margin from all-segment corrected minimum before report ingestion.
