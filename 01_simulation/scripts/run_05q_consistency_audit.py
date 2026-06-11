@@ -155,9 +155,12 @@ def _nominal_replay_comparison(
     for propulsion_case, case_id in NOMINAL_CASE_IDS.items():
         v04s_row = v04s[v04s["case_name"] == propulsion_case].iloc[0]
         v05r_row = summary[summary["case_id"] == case_id].iloc[0]
+        approach_only_margin_N = float(v05r_row["approach_only_corrected_margin_N"])
+        all_segment_margin_N = float(
+            v05r_row["corrected_all_segment_min_thrust_margin_N"]
+        )
         difference_N = (
-            float(v05r_row["corrected_approach_min_thrust_margin_N"])
-            - float(v04s_row["thrust_margin_descent_N"])
+            approach_only_margin_N - float(v04s_row["thrust_margin_descent_N"])
         )
         rows.append(
             {
@@ -167,13 +170,28 @@ def _nominal_replay_comparison(
                 "v05r_raw_min_thrust_margin_N": float(
                     v05r_row["raw_min_thrust_margin_N"]
                 ),
+                "v05q2_raw_all_segment_min_thrust_margin_N": float(
+                    v05r_row["raw_all_segment_min_thrust_margin_N"]
+                ),
+                "v05q2_approach_only_corrected_margin_N": approach_only_margin_N,
+                "v05q2_corrected_all_segment_min_margin_N": all_segment_margin_N,
+                "v05q2_non_approach_min_thrust_margin_N": float(
+                    v05r_row["non_approach_min_thrust_margin_N"]
+                ),
                 "v05r_corrected_approach_min_thrust_margin_N": float(
                     v05r_row["corrected_approach_min_thrust_margin_N"]
                 ),
                 "margin_difference_v05r_minus_v04s_N": difference_N,
+                "margin_difference_q2_approach_only_minus_v04s_N": difference_N,
+                "all_segment_minus_approach_only_N": (
+                    all_segment_margin_N - approach_only_margin_N
+                ),
                 "v04s_conclusion_flag": str(v04s_row["conclusion_flag"]),
                 "v05r_conclusion_status_corrected": str(
-                    v05r_row["conclusion_status_corrected"]
+                    v05r_row["conclusion_status_approach_corrected"]
+                ),
+                "v05q2_conclusion_status_all_segment_corrected": str(
+                    v05r_row["conclusion_status_all_segment_corrected"]
                 ),
                 "consistency_flag": (
                     "consistent"
@@ -200,14 +218,14 @@ def _input_decomposition(
     best_hybrid_unmet = hybrid.sort_values(
         by=[
             "unmet_electric_load_Wh",
-            "corrected_approach_min_thrust_margin_N",
+            "approach_only_corrected_margin_N",
             "mission_fuel_kg",
         ],
         ascending=[True, False, True],
     ).iloc[0]
     best_hybrid_margin = hybrid.sort_values(
         by=[
-            "corrected_approach_min_thrust_margin_N",
+            "approach_only_corrected_margin_N",
             "unmet_electric_load_Wh",
             "mission_fuel_kg",
         ],
@@ -351,9 +369,26 @@ def _approach_decomposition_row(
         "v05r_reported_corrected_min_margin_N": float(
             summary_row["corrected_approach_min_thrust_margin_N"]
         ),
+        "v05q2_approach_only_corrected_margin_N": float(
+            summary_row["approach_only_corrected_margin_N"]
+        ),
+        "v05q2_corrected_all_segment_min_margin_N": float(
+            summary_row["corrected_all_segment_min_thrust_margin_N"]
+        ),
+        "v05q2_non_approach_min_thrust_margin_N": float(
+            summary_row["non_approach_min_thrust_margin_N"]
+        ),
         "approach_margin_minus_v05r_reported_min_N": (
             force_balance.thrust_margin_descent_N
             - float(summary_row["corrected_approach_min_thrust_margin_N"])
+        ),
+        "approach_margin_minus_v05q2_approach_only_N": (
+            force_balance.thrust_margin_descent_N
+            - float(summary_row["approach_only_corrected_margin_N"])
+        ),
+        "q2_all_segment_minus_approach_only_N": (
+            float(summary_row["corrected_all_segment_min_thrust_margin_N"])
+            - float(summary_row["approach_only_corrected_margin_N"])
         ),
         "raw_margin_N": segment.thrust_margin_N,
         "fuel_kg": record.result.weight_breakdown.fuel_kg,
@@ -409,7 +444,7 @@ def _engine_static_thrust(record: CaseRecord) -> float:
 
 
 def _decomposition_conclusion(force_balance, summary_row: pd.Series) -> str:
-    if "validated" in str(summary_row.get("conclusion_status_corrected", "")):
+    if "validated" in str(summary_row.get("conclusion_status_approach_corrected", "")):
         return "invalid_validated_label"
     if force_balance.thrust_margin_descent_N >= 0.0:
         return "approach_margin_positive_but_other_segment_may_limit"
@@ -448,12 +483,12 @@ def _audit_summary(
         (
             "nominal_replay_consistent_count",
             int((nominal_replay["consistency_flag"] == "consistent").sum()),
-            "nominal V0.2-04S descent margin matches V0.2-05R margin within 1000 N",
+            "nominal V0.2-04S descent margin matches V0.2-05Q2 approach-only margin within 1000 N",
         ),
         (
             "nominal_replay_inconsistent_count",
             nominal_inconsistent,
-            "nominal rows where V0.2-05R reported margin does not replay V0.2-04S approach-only margin",
+            "nominal rows where V0.2-05Q2 approach-only margin does not replay V0.2-04S approach-only margin",
         ),
         (
             "thrust_monotonicity_pass_count",
@@ -488,12 +523,12 @@ def _audit_summary(
         (
             "suspected_classification_field_mismatch_count",
             nominal_inconsistent,
-            "V0.2-05R field compares all-segment corrected minimum against V0.2-04S approach-only margin",
+            "post-Q2 count of nominal approach-only field mismatches against V0.2-04S",
         ),
         (
             "recommended_next_action",
             recommended,
-            "next action before report ingestion or V0.2-05R acceptance",
+            "next action before report ingestion or V0.2-05Q2 acceptance",
         ),
     ]
     return pd.DataFrame(
@@ -545,13 +580,13 @@ def _plot_nominal_replay(
         [item + width / 2 for item in x],
         nominal_replay["v05r_corrected_approach_min_thrust_margin_N"],
         width,
-        label="V0.2-05R reported corrected min",
+        label="V0.2-05Q2 approach-only margin",
     )
     ax.axhline(0.0, color="black", linewidth=1.0)
     ax.set_xticks(list(x), nominal_replay["propulsion_case"], rotation=20)
     ax.set_xlabel("Propulsion case")
     ax.set_ylabel("Thrust margin (N)")
-    ax.set_title("V0.2-04S vs V0.2-05R Nominal Replay")
+    ax.set_title("V0.2-04S vs V0.2-05Q2 Nominal Approach Replay")
     ax.grid(True, axis="y", alpha=0.3)
     ax.legend(fontsize="small")
     fig.tight_layout()

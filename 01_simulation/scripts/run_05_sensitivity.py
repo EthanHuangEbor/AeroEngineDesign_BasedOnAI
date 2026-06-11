@@ -49,6 +49,9 @@ def main() -> None:
     tornado = tables["tornado"]
     corrected_constraint_summary = tables["corrected_constraint_summary"]
     approach_classification = tables["approach_classification"]
+    field_semantics = tables["field_semantics"]
+    feasibility_reclassified = tables["feasibility_reclassified"]
+    non_approach_constraints = tables["non_approach_constraints"]
 
     write_dataframe_csv(summary, csv_dir / "sensitivity_summary.csv")
     write_dataframe_csv(details, csv_dir / "sensitivity_case_details.csv")
@@ -62,6 +65,18 @@ def main() -> None:
     write_dataframe_csv(
         approach_classification,
         csv_dir / "sensitivity_approach_classification.csv",
+    )
+    write_dataframe_csv(
+        field_semantics,
+        csv_dir / "sensitivity_field_semantics_audit.csv",
+    )
+    write_dataframe_csv(
+        feasibility_reclassified,
+        csv_dir / "sensitivity_feasibility_reclassified.csv",
+    )
+    write_dataframe_csv(
+        non_approach_constraints,
+        csv_dir / "sensitivity_non_approach_constraints.csv",
     )
 
     merged = summary.merge(details, on=["case_id", "case_family", "propulsion_case"], how="left")
@@ -77,23 +92,46 @@ def main() -> None:
         png_dir,
         svg_dir,
     )
+    _plot_approach_only_vs_all_segment_margin(summary, png_dir, svg_dir)
+    _plot_sensitivity_feasibility_reclassified(summary, png_dir, svg_dir)
+    _plot_non_approach_constraint_drivers(non_approach_constraints, png_dir, svg_dir)
 
     raw_low_thrust_cases = int(summary["raw_low_thrust_margin"].sum())
-    corrected_low_thrust_cases = int(summary["corrected_low_thrust_margin"].sum())
-    approach_model_sensitive_cases = int(summary["approach_model_sensitive"].sum())
+    approach_only_low_thrust_cases = int(
+        summary["approach_only_corrected_low_thrust_margin"].sum()
+    )
+    all_segment_corrected_low_thrust_cases = int(
+        summary["corrected_all_segment_low_thrust_margin"].sum()
+    )
+    approach_model_sensitive_cases = int(
+        summary["approach_only_model_sensitive"].sum()
+    )
     sizing_or_schedule_cases = int(summary["sizing_or_schedule_low_thrust"].sum())
     unmet_cases = int(summary["unmet_electric_load"].sum())
-    corrected_feasible_cases = int(summary["feasible_basic_corrected"].sum())
+    approach_corrected_feasible_cases = int(
+        summary["feasible_basic_approach_corrected"].sum()
+    )
+    all_segment_corrected_feasible_cases = int(
+        summary["feasible_basic_all_segment_corrected"].sum()
+    )
 
     print("MTA-VHEP V0.2-05 Sensitivity Analysis Summary")
     print("Concept-level screening only; no validated design or certified performance claim.")
     print(f"Sensitivity case rows: {len(summary)}")
     print(f"Rows with raw low thrust margin: {raw_low_thrust_cases}")
-    print(f"Rows with corrected low thrust margin: {corrected_low_thrust_cases}")
+    print(f"Rows with approach-only corrected low thrust margin: {approach_only_low_thrust_cases}")
+    print(
+        "Rows with all-segment corrected low thrust margin: "
+        f"{all_segment_corrected_low_thrust_cases}"
+    )
     print(f"Rows classified approach-model-sensitive: {approach_model_sensitive_cases}")
     print(f"Rows classified sizing/schedule low thrust: {sizing_or_schedule_cases}")
     print(f"Rows with unmet electric load: {unmet_cases}")
-    print(f"Rows passing corrected basic screen: {corrected_feasible_cases}")
+    print(f"Rows passing approach-only corrected screen: {approach_corrected_feasible_cases}")
+    print(
+        "Rows passing all-segment corrected screen: "
+        f"{all_segment_corrected_feasible_cases}"
+    )
     print(f"Best-candidate rows: {len(best)}")
     print(f"Wrote: {csv_dir / 'sensitivity_summary.csv'}")
     print(f"Wrote: {csv_dir / 'sensitivity_best_candidates.csv'}")
@@ -277,7 +315,7 @@ def _plot_corrected_constraint_feasibility_map(
     ax.set_ylabel("Mission fuel model output (kg)")
     ax.set_title("Corrected Basic Feasibility Screen")
     ax.grid(True, alpha=0.3)
-    _add_boolean_legend(ax, "Corrected feasible")
+    _add_boolean_legend(ax, "All-segment corrected feasible")
     fig.tight_layout()
     _save_figure(
         fig,
@@ -293,30 +331,32 @@ def _plot_raw_vs_corrected_thrust_margin(
     svg_dir: Path,
 ) -> None:
     fig, ax = plt.subplots(figsize=(8.0, 4.8), dpi=140)
-    colors = summary["approach_model_sensitive"].map({True: "#2ca02c", False: "#d62728"})
+    colors = summary["approach_only_model_sensitive"].map(
+        {True: "#2ca02c", False: "#d62728"}
+    )
     ax.scatter(
-        summary["raw_min_thrust_margin_N"],
-        summary["corrected_approach_min_thrust_margin_N"],
+        summary["raw_all_segment_min_thrust_margin_N"],
+        summary["corrected_all_segment_min_thrust_margin_N"],
         c=colors,
         alpha=0.78,
         edgecolors="none",
     )
     min_axis = min(
-        float(summary["raw_min_thrust_margin_N"].min()),
-        float(summary["corrected_approach_min_thrust_margin_N"].min()),
+        float(summary["raw_all_segment_min_thrust_margin_N"].min()),
+        float(summary["corrected_all_segment_min_thrust_margin_N"].min()),
         0.0,
     )
     max_axis = max(
-        float(summary["raw_min_thrust_margin_N"].max()),
-        float(summary["corrected_approach_min_thrust_margin_N"].max()),
+        float(summary["raw_all_segment_min_thrust_margin_N"].max()),
+        float(summary["corrected_all_segment_min_thrust_margin_N"].max()),
         0.0,
     )
     ax.plot([min_axis, max_axis], [min_axis, max_axis], color="black", linewidth=1.0)
     ax.axhline(0.0, color="gray", linewidth=1.0, linestyle="--")
     ax.axvline(0.0, color="gray", linewidth=1.0, linestyle="--")
-    ax.set_xlabel("Raw minimum thrust margin (N)")
-    ax.set_ylabel("Corrected minimum thrust margin (N)")
-    ax.set_title("Raw vs Corrected Thrust Margin")
+    ax.set_xlabel("Raw all-segment minimum thrust margin (N)")
+    ax.set_ylabel("Corrected all-segment minimum thrust margin (N)")
+    ax.set_title("Raw vs Corrected All-Segment Thrust Margin")
     ax.grid(True, alpha=0.3)
     _add_boolean_legend(ax, "Approach-model sensitive")
     fig.tight_layout()
@@ -335,10 +375,12 @@ def _plot_approach_model_sensitivity_classification(
 ) -> None:
     wanted = [
         "low_thrust_margin",
-        "corrected_low_thrust_margin",
-        "approach_model_sensitive",
+        "approach_only_corrected_low_thrust_margin",
+        "corrected_all_segment_low_thrust_margin",
+        "approach_only_model_sensitive",
         "sizing_or_schedule_low_thrust",
-        "feasible_basic_corrected",
+        "feasible_basic_approach_corrected",
+        "feasible_basic_all_segment_corrected",
     ]
     table = corrected_summary[corrected_summary["metric"].isin(wanted)].copy()
     table["plot_count"] = table["corrected_count"]
@@ -359,6 +401,122 @@ def _plot_approach_model_sensitivity_classification(
         fig,
         png_dir / "approach_model_sensitivity_classification.png",
         svg_dir / "approach_model_sensitivity_classification.svg",
+    )
+    plt.close(fig)
+
+
+def _plot_approach_only_vs_all_segment_margin(
+    summary: pd.DataFrame,
+    png_dir: Path,
+    svg_dir: Path,
+) -> None:
+    fig, ax = plt.subplots(figsize=(8.0, 4.8), dpi=140)
+    colors = summary["feasible_basic_all_segment_corrected"].map(
+        {True: "#2ca02c", False: "#d62728"}
+    )
+    ax.scatter(
+        summary["approach_only_corrected_margin_N"],
+        summary["corrected_all_segment_min_thrust_margin_N"],
+        c=colors,
+        alpha=0.78,
+        edgecolors="none",
+    )
+    min_axis = min(
+        float(summary["approach_only_corrected_margin_N"].min()),
+        float(summary["corrected_all_segment_min_thrust_margin_N"].min()),
+        0.0,
+    )
+    max_axis = max(
+        float(summary["approach_only_corrected_margin_N"].max()),
+        float(summary["corrected_all_segment_min_thrust_margin_N"].max()),
+        0.0,
+    )
+    ax.plot([min_axis, max_axis], [min_axis, max_axis], color="black", linewidth=1.0)
+    ax.axhline(0.0, color="gray", linewidth=1.0, linestyle="--")
+    ax.axvline(0.0, color="gray", linewidth=1.0, linestyle="--")
+    ax.set_xlabel("Approach-only corrected margin (N)")
+    ax.set_ylabel("All-segment corrected minimum margin (N)")
+    ax.set_title("Approach-Only vs All-Segment Corrected Margin")
+    ax.grid(True, alpha=0.3)
+    _add_boolean_legend(ax, "All-segment corrected feasible")
+    fig.tight_layout()
+    _save_figure(
+        fig,
+        png_dir / "approach_only_vs_all_segment_margin.png",
+        svg_dir / "approach_only_vs_all_segment_margin.svg",
+    )
+    plt.close(fig)
+
+
+def _plot_sensitivity_feasibility_reclassified(
+    summary: pd.DataFrame,
+    png_dir: Path,
+    svg_dir: Path,
+) -> None:
+    counts = pd.DataFrame(
+        [
+            {
+                "screen": "Raw",
+                "count": int(summary["feasible_basic_raw"].sum()),
+            },
+            {
+                "screen": "Approach-only corrected",
+                "count": int(summary["feasible_basic_approach_corrected"].sum()),
+            },
+            {
+                "screen": "All-segment corrected",
+                "count": int(summary["feasible_basic_all_segment_corrected"].sum()),
+            },
+        ]
+    )
+    fig, ax = plt.subplots(figsize=(8.0, 4.8), dpi=140)
+    ax.bar(counts["screen"], counts["count"], color=["#7f7f7f", "#1f77b4", "#2ca02c"])
+    ax.set_xlabel("Basic screening basis")
+    ax.set_ylabel("Case count")
+    ax.set_title("Sensitivity Feasibility Reclassification")
+    ax.tick_params(axis="x", rotation=15)
+    ax.grid(True, axis="y", alpha=0.3)
+    fig.tight_layout()
+    _save_figure(
+        fig,
+        png_dir / "sensitivity_feasibility_reclassified.png",
+        svg_dir / "sensitivity_feasibility_reclassified.svg",
+    )
+    plt.close(fig)
+
+
+def _plot_non_approach_constraint_drivers(
+    non_approach_constraints: pd.DataFrame,
+    png_dir: Path,
+    svg_dir: Path,
+) -> None:
+    fig, ax = plt.subplots(figsize=(8.0, 4.8), dpi=140)
+    if non_approach_constraints.empty:
+        ax.text(0.5, 0.5, "No non-approach constraint rows", ha="center", va="center")
+        ax.set_axis_off()
+    else:
+        table = (
+            non_approach_constraints[
+                non_approach_constraints["non_approach_low_thrust_margin"].astype(bool)
+            ]
+            .groupby("non_approach_limiting_segment", as_index=False)
+            .size()
+            .sort_values("size", ascending=False)
+        )
+        if table.empty:
+            ax.text(0.5, 0.5, "No non-approach low-thrust rows", ha="center", va="center")
+            ax.set_axis_off()
+        else:
+            ax.bar(table["non_approach_limiting_segment"], table["size"])
+            ax.set_xlabel("Non-approach limiting segment")
+            ax.set_ylabel("Case count")
+            ax.set_title("Non-Approach Constraint Drivers")
+            ax.grid(True, axis="y", alpha=0.3)
+    fig.tight_layout()
+    _save_figure(
+        fig,
+        png_dir / "non_approach_constraint_drivers.png",
+        svg_dir / "non_approach_constraint_drivers.svg",
     )
     plt.close(fig)
 

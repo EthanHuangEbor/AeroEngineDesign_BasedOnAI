@@ -14,6 +14,7 @@
 - V0.2-05 sensitivity analysis and candidate screening
 - V0.2-05R corrected sensitivity constraint classification
 - V0.2-05Q sensitivity consistency and monotonicity audit
+- V0.2-05Q2 sensitivity field semantics repair and reclassified feasibility audit
 
 ## Stage Audit Notes
 
@@ -76,4 +77,21 @@ These deltas are diagnostic model outputs only; they are not verified fuel-burn 
 - V0.2-05Q nominal replay is not internally consistent: 3 of 3 nominal rows differ by more than 1000 N between V0.2-04S approach-only descent margin and the V0.2-05R reported corrected minimum.
 - Engine thrust monotonicity passes for the audited 115000, 130000, and 150000 N/engine cases.
 - Suspected cause: V0.2-05R labels an all-segment corrected minimum as `corrected_approach_min_thrust_margin_N`, while V0.2-04S reports approach-only descent-force-balance margin.
-- Report ingestion must wait for V0.2-05Q2 repair that splits approach-only corrected margin from all-segment corrected minimum.
+- This inconsistency is retained as an audit finding and is resolved by V0.2-05Q2.
+
+## Known V0.2-05Q2 Field Semantics Repair Status
+
+- V0.2-05Q2 splits `approach_only_corrected_margin_N` from `corrected_all_segment_min_thrust_margin_N`.
+- Nominal approach-only replay is internally consistent with V0.2-04S: 3 of 3 nominal rows match within 1000 N.
+- Raw low-thrust count: 225.
+- Approach-only corrected low-thrust count: 121.
+- All-segment corrected low-thrust count: 225.
+- Approach-model-sensitive count: 104.
+- Sizing-or-schedule low-thrust count: 225.
+- Feasible basic raw count: 0.
+- Feasible basic approach-corrected count: 92.
+- Feasible basic all-segment-corrected count: 0.
+- Hybrid unmet electric load remains in 69 sensitivity rows.
+- Dominant non-approach limiting segment: descent in 197 rows, with takeoff limiting 28 rows.
+- Best candidates are approach-corrected-only or diagnostic candidates; none are validated designs.
+- Report ingestion may proceed after V0.2-05Q2 only with explicit diagnostic labels and all-segment constraints visible.

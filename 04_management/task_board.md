@@ -3,10 +3,7 @@
 ## Backlog
 
 - Report skeleton
-
-## Blocked
-
-- Report finalization: blocked pending V0.2-05Q2 repair of sensitivity corrected-margin field semantics
+- Report finalization
 
 ## In Progress
 
@@ -35,3 +32,4 @@
 - Sensitivity runner
 - Corrected constraint classification
 - Sensitivity consistency audit
+- Sensitivity field semantics repair

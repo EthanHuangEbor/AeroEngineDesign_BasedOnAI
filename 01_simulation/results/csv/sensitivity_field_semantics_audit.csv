@@ -1,0 +1,7 @@
+field_name,old_meaning_if_any,new_meaning,status,notes
+corrected_approach_min_thrust_margin_N,"V0.2-05R all-segment corrected minimum, despite approach label",deprecated compatibility alias for approach_only_corrected_margin_N,replaced,Do not use for all-segment feasibility; use corrected_all_segment_min_thrust_margin_N.
+approach_only_corrected_margin_N,,V0.2-04S descending force-balance margin for approach_landing only,active,Comparable to approach_landing_diagnostics.csv thrust_margin_descent_N.
+corrected_all_segment_min_thrust_margin_N,,Minimum of approach_only_corrected_margin_N and non_approach_min_thrust_margin_N,active,Use for all-segment corrected feasibility classification.
+non_approach_min_thrust_margin_N,,Minimum raw thrust margin across positive-thrust non-approach mission segments,active,"Identifies whether climb, cruise, descent, or takeoff dominates after approach correction."
+feasible_basic_approach_corrected,,"No approach-only corrected low-thrust flag, no unmet electric load, and within MTOW upper bound",active,Diagnostic screen only; ignores non-approach thrust constraints by design.
+feasible_basic_all_segment_corrected,,"No corrected all-segment low-thrust flag, no unmet electric load, and within MTOW upper bound",active,Primary corrected feasibility proxy; not a validated design label.

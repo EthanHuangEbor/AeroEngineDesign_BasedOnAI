@@ -94,3 +94,14 @@
 - Nominal replay result: 3 of 3 nominal rows are inconsistent because V0.2-05R reports an all-segment corrected minimum where V0.2-04S reports approach-only corrected margin.
 - Monotonicity result: engine thrust monotonicity passes for the audited 115000, 130000, and 150000 N/engine cases.
 - Recommended next action: V0.2-05Q2 repair is required to split approach-only corrected margin from all-segment corrected minimum before report ingestion.
+
+# Daily Log 2026-06-10 V0.2-05Q2
+
+- Sensitivity field semantics repaired by separating approach-only corrected margin from all-segment corrected minimum margin.
+- New CSV outputs: `sensitivity_field_semantics_audit.csv`, `sensitivity_feasibility_reclassified.csv`, and `sensitivity_non_approach_constraints.csv`.
+- New figures: `approach_only_vs_all_segment_margin`, `sensitivity_feasibility_reclassified`, and `non_approach_constraint_drivers` in PNG and SVG formats.
+- Counts after repair: raw low thrust 225, approach-only corrected low thrust 121, all-segment corrected low thrust 225, approach-model-sensitive 104, sizing/schedule low thrust 225.
+- Candidate status: 92 rows pass the approach-only corrected screen, 0 rows pass the all-segment corrected screen, and best candidates remain diagnostic screening rows.
+- Hybrid unmet electric load remains in 69 rows.
+- Tests run: sensitivity scripts, Q consistency audit, Q2 field-semantics tests, and pytest.
+- Open limitation: non-approach low-thrust constraints remain and must be handled in future sizing/schedule work before any feasibility claim.

@@ -90,3 +90,12 @@
 - It does not validate the physical accuracy of either model.
 - Monotonicity checks are diagnostic only and are not design certification.
 - Any candidate remains concept-level only, even if a diagnostic monotonicity check passes.
+
+## V0.2-05Q2 Field semantics repair limitations
+
+- V0.2-05Q2 repairs sensitivity field semantics by separating approach-only corrected margin from all-segment corrected minimum margin.
+- `approach_only_corrected_margin_N` is comparable to the V0.2-04S approach/landing force-balance replay.
+- `corrected_all_segment_min_thrust_margin_N` remains the all-segment screening margin and may be limited by non-approach segments.
+- Approach-corrected-only candidate rows are diagnostic screening rows, not feasible or validated designs.
+- Current all-segment corrected feasibility remains constraint-flagged because non-approach low-thrust constraints persist.
+- No final fuel-burn, range, STOL, noise, safety, or certification claim is made.
