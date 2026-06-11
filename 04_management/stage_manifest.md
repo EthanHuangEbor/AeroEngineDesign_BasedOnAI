@@ -12,6 +12,7 @@
 - V0.2-04R mission diagnostics and result audit
 - V0.2-04S approach/landing segment audit
 - V0.2-05 sensitivity analysis and candidate screening
+- V0.2-05R corrected sensitivity constraint classification
 
 ## Stage Audit Notes
 
@@ -56,3 +57,15 @@ These deltas are diagnostic model outputs only; they are not verified fuel-burn 
 - Unmet-electric-load status: 156 rows had zero unmet electric load, but these are still not validated because low thrust margin remains.
 - Best candidates are screening candidates only; all selected rows remain constraint-qualified model outputs.
 - Conservative conclusion: V0.2-05 identifies useful sensitivity directions, especially engine thrust, electric power schedule, and hybrid sizing effects, but it does not validate mission feasibility.
+
+## Known V0.2-05R Corrected Constraint Classification Status
+
+- V0.2-05R retains raw mission constraints and adds corrected approach-force-balance classification.
+- Raw low-thrust count: 225.
+- Corrected low-thrust count: 225.
+- Approach-model-sensitive count: 0.
+- Sizing-or-schedule low-thrust count: 225.
+- Feasible basic raw count: 0.
+- Feasible basic corrected count: 0.
+- Hybrid unmet electric load remains in 69 sensitivity rows.
+- Report ingestion may proceed only with both raw and corrected classifications visible; no V0.2-05R row is validated.

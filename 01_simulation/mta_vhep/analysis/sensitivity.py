@@ -50,10 +50,25 @@ class SensitivityCaseResult:
     mtow_margin_to_upper_kg: float
     min_thrust_margin_N: float
     min_thrust_margin_ratio: float
+    raw_min_thrust_margin_N: float
+    raw_min_thrust_margin_ratio: float
+    raw_low_thrust_margin: bool
+    raw_limiting_segment: str
+    corrected_approach_min_thrust_margin_N: float
+    corrected_approach_min_thrust_margin_ratio: float
+    corrected_low_thrust_margin: bool
+    approach_model_sensitive: bool
+    sizing_or_schedule_low_thrust: bool
+    unmet_electric_load: bool
     unmet_electric_load_Wh: float
+    within_mtow_upper_bound: bool
+    feasible_basic_raw: bool
+    feasible_basic_corrected: bool
     takeoff_proxy_index: float
     landing_proxy_index: float
     constraint_count: int
+    conclusion_status_raw: str
+    conclusion_status_corrected: str
     conclusion_status: str
 
 
@@ -107,6 +122,8 @@ class SensitivityRunner:
         constraints = pd.DataFrame(constraint_rows)
         tornado = self._tornado_data(summary)
         best = self._best_candidates(summary, details)
+        corrected_constraint_summary = self._corrected_constraint_summary(summary)
+        approach_classification = self._approach_classification(summary)
 
         return {
             "summary": summary,
@@ -114,6 +131,8 @@ class SensitivityRunner:
             "constraints": constraints,
             "best_candidates": best,
             "tornado": tornado,
+            "corrected_constraint_summary": corrected_constraint_summary,
+            "approach_classification": approach_classification,
         }
 
     def _case_settings(self) -> list[tuple[str, dict[str, float], str | None]]:
@@ -315,25 +334,71 @@ class SensitivityRunner:
         for result in results:
             case_id = f"{case_id_base}_{_case_slug(result.case_name)}"
             takeoff_proxy, landing_proxy = self._proxy_indices(result, configs["aero"])
-            margin_rows = [
-                self._sensitivity_margin_row(segment, configs)
+            raw_margin_rows = [
+                self._raw_margin_row(segment)
                 for segment in result.segment_results
                 if segment.average_required_thrust_N > 0.0
             ]
-            min_margin_row = min(
-                margin_rows,
+            corrected_margin_rows = [
+                self._corrected_margin_row(segment, configs)
+                for segment in result.segment_results
+                if segment.average_required_thrust_N > 0.0
+            ]
+            raw_min_margin_row = min(
+                raw_margin_rows,
+                key=lambda item: item["thrust_margin_N"],
+            )
+            corrected_min_margin_row = min(
+                corrected_margin_rows,
                 key=lambda item: item["thrust_margin_N"],
             )
             unmet_electric_load_Wh = sum(
                 segment.unmet_electric_load_Wh for segment in result.segment_results
             )
-            constraints = self._constraint_rows(case_id, result)
-            constraint_count = len(constraints)
-            conclusion_status = self._conclusion_status(
-                result,
-                unmet_electric_load_Wh,
-                result.weight_breakdown.mtow_margin_to_upper_kg,
+            raw_low_thrust_margin = "low_thrust_margin" in result.constraint_violations
+            corrected_low_thrust_margin = (
+                corrected_min_margin_row["thrust_margin_N"]
+                < _min_net_thrust_margin_N(configs["mission_solver"])
             )
+            approach_model_sensitive = (
+                raw_low_thrust_margin
+                and not corrected_low_thrust_margin
+                and str(raw_min_margin_row["segment_name"]) == "approach_landing"
+            )
+            sizing_or_schedule_low_thrust = corrected_low_thrust_margin
+            unmet_electric_load = unmet_electric_load_Wh > 0.0
+            within_mtow_upper_bound = result.weight_breakdown.mtow_margin_to_upper_kg >= 0.0
+            feasible_basic_raw = (
+                not raw_low_thrust_margin
+                and not unmet_electric_load
+                and within_mtow_upper_bound
+            )
+            feasible_basic_corrected = (
+                not corrected_low_thrust_margin
+                and not unmet_electric_load
+                and within_mtow_upper_bound
+            )
+            conclusion_status_raw = self._conclusion_status_raw(
+                raw_low_thrust_margin,
+                unmet_electric_load,
+                within_mtow_upper_bound,
+            )
+            conclusion_status_corrected = self._conclusion_status_corrected(
+                corrected_low_thrust_margin,
+                unmet_electric_load,
+                within_mtow_upper_bound,
+            )
+            constraints = self._constraint_rows(case_id, result)
+            constraints.extend(
+                self._corrected_constraint_rows(
+                    case_id,
+                    result,
+                    corrected_min_margin_row,
+                    approach_model_sensitive,
+                    corrected_low_thrust_margin,
+                )
+            )
+            constraint_count = len(constraints)
             changed_parameter, changed_value = _changed_parameter_text(settings)
             summary = SensitivityCaseResult(
                 case_id=case_id,
@@ -347,16 +412,39 @@ class SensitivityRunner:
                 ),
                 estimated_mtow_kg=result.weight_breakdown.estimated_mtow_kg,
                 mtow_margin_to_upper_kg=result.weight_breakdown.mtow_margin_to_upper_kg,
-                min_thrust_margin_N=min_margin_row["thrust_margin_N"],
+                min_thrust_margin_N=corrected_min_margin_row["thrust_margin_N"],
                 min_thrust_margin_ratio=(
-                    min_margin_row["thrust_margin_N"]
-                    / min_margin_row["required_thrust_N"]
+                    corrected_min_margin_row["thrust_margin_N"]
+                    / corrected_min_margin_row["required_thrust_N"]
                 ),
+                raw_min_thrust_margin_N=raw_min_margin_row["thrust_margin_N"],
+                raw_min_thrust_margin_ratio=(
+                    raw_min_margin_row["thrust_margin_N"]
+                    / raw_min_margin_row["required_thrust_N"]
+                ),
+                raw_low_thrust_margin=raw_low_thrust_margin,
+                raw_limiting_segment=str(raw_min_margin_row["segment_name"]),
+                corrected_approach_min_thrust_margin_N=corrected_min_margin_row[
+                    "thrust_margin_N"
+                ],
+                corrected_approach_min_thrust_margin_ratio=(
+                    corrected_min_margin_row["thrust_margin_N"]
+                    / corrected_min_margin_row["required_thrust_N"]
+                ),
+                corrected_low_thrust_margin=corrected_low_thrust_margin,
+                approach_model_sensitive=approach_model_sensitive,
+                sizing_or_schedule_low_thrust=sizing_or_schedule_low_thrust,
+                unmet_electric_load=unmet_electric_load,
                 unmet_electric_load_Wh=unmet_electric_load_Wh,
+                within_mtow_upper_bound=within_mtow_upper_bound,
+                feasible_basic_raw=feasible_basic_raw,
+                feasible_basic_corrected=feasible_basic_corrected,
                 takeoff_proxy_index=takeoff_proxy,
                 landing_proxy_index=landing_proxy,
                 constraint_count=constraint_count,
-                conclusion_status=conclusion_status,
+                conclusion_status_raw=conclusion_status_raw,
+                conclusion_status_corrected=conclusion_status_corrected,
+                conclusion_status=conclusion_status_corrected,
             )
             details = self._details_row(
                 case_id,
@@ -364,7 +452,8 @@ class SensitivityRunner:
                 settings,
                 result,
                 configs,
-                str(min_margin_row["segment_name"]),
+                str(corrected_min_margin_row["segment_name"]),
+                str(raw_min_margin_row["segment_name"]),
             )
             bundles.append(
                 {
@@ -376,7 +465,14 @@ class SensitivityRunner:
             )
         return bundles
 
-    def _sensitivity_margin_row(
+    def _raw_margin_row(self, segment: MissionSegmentResult) -> dict[str, float | str]:
+        return {
+            "segment_name": segment.segment_name,
+            "required_thrust_N": segment.average_required_thrust_N,
+            "thrust_margin_N": segment.thrust_margin_N,
+        }
+
+    def _corrected_margin_row(
         self,
         segment: MissionSegmentResult,
         configs: dict[str, dict[str, Any]],
@@ -458,6 +554,7 @@ class SensitivityRunner:
                 {
                     "case_id": case_id,
                     "propulsion_case": result.case_name,
+                    "classification_basis": "raw",
                     "scope": "mission",
                     "segment_name": "",
                     "constraint_flag": flag,
@@ -476,6 +573,7 @@ class SensitivityRunner:
                     {
                         "case_id": case_id,
                         "propulsion_case": result.case_name,
+                        "classification_basis": "raw",
                         "scope": "segment",
                         "segment_name": segment.segment_name,
                         "constraint_flag": flag,
@@ -485,18 +583,70 @@ class SensitivityRunner:
                 )
         return rows
 
-    def _conclusion_status(
+    def _corrected_constraint_rows(
         self,
+        case_id: str,
         result: MissionResult,
-        unmet_electric_load_Wh: float,
-        mtow_margin_to_upper_kg: float,
+        corrected_min_margin_row: dict[str, float | str],
+        approach_model_sensitive: bool,
+        corrected_low_thrust_margin: bool,
+    ) -> list[dict[str, Any]]:
+        rows = []
+        if corrected_low_thrust_margin:
+            rows.append(
+                {
+                    "case_id": case_id,
+                    "propulsion_case": result.case_name,
+                    "classification_basis": "corrected",
+                    "scope": "mission",
+                    "segment_name": corrected_min_margin_row["segment_name"],
+                    "constraint_flag": "corrected_low_thrust_margin",
+                    "value": corrected_min_margin_row["thrust_margin_N"],
+                    "threshold": 0.0,
+                }
+            )
+        if approach_model_sensitive:
+            rows.append(
+                {
+                    "case_id": case_id,
+                    "propulsion_case": result.case_name,
+                    "classification_basis": "corrected",
+                    "scope": "mission",
+                    "segment_name": "approach_landing",
+                    "constraint_flag": "approach_model_sensitive",
+                    "value": corrected_min_margin_row["thrust_margin_N"],
+                    "threshold": 0.0,
+                }
+            )
+        return rows
+
+    def _conclusion_status_raw(
+        self,
+        raw_low_thrust_margin: bool,
+        unmet_electric_load: bool,
+        within_mtow_upper_bound: bool,
     ) -> str:
         scoring = self.sensitivity_root["scoring"]
-        if scoring["reject_if_low_thrust_margin"] and "low_thrust_margin" in result.constraint_violations:
+        if scoring["reject_if_low_thrust_margin"] and raw_low_thrust_margin:
             return "rejected_low_thrust_margin"
-        if scoring["reject_if_unmet_electric_load"] and unmet_electric_load_Wh > 0.0:
+        if scoring["reject_if_unmet_electric_load"] and unmet_electric_load:
             return "rejected_unmet_electric_load"
-        if scoring["reject_if_above_mtow_upper"] and mtow_margin_to_upper_kg < 0.0:
+        if scoring["reject_if_above_mtow_upper"] and not within_mtow_upper_bound:
+            return "rejected_above_mtow_upper"
+        return "candidate_for_sensitivity_study"
+
+    def _conclusion_status_corrected(
+        self,
+        corrected_low_thrust_margin: bool,
+        unmet_electric_load: bool,
+        within_mtow_upper_bound: bool,
+    ) -> str:
+        scoring = self.sensitivity_root["scoring"]
+        if scoring["reject_if_low_thrust_margin"] and corrected_low_thrust_margin:
+            return "rejected_corrected_low_thrust_margin"
+        if scoring["reject_if_unmet_electric_load"] and unmet_electric_load:
+            return "rejected_unmet_electric_load"
+        if scoring["reject_if_above_mtow_upper"] and not within_mtow_upper_bound:
             return "rejected_above_mtow_upper"
         return "candidate_for_sensitivity_study"
 
@@ -508,6 +658,7 @@ class SensitivityRunner:
         result: MissionResult,
         configs: dict[str, dict[str, Any]],
         min_margin_segment_name: str,
+        raw_min_margin_segment_name: str,
     ) -> dict[str, Any]:
         variables = self._current_design_variables(configs)
         return {
@@ -516,6 +667,7 @@ class SensitivityRunner:
             "propulsion_case": result.case_name,
             "design_variable_summary": _settings_summary(settings),
             "min_margin_segment_name": min_margin_segment_name,
+            "raw_min_margin_segment_name": raw_min_margin_segment_name,
             **variables,
         }
 
@@ -628,6 +780,85 @@ class SensitivityRunner:
                 )
         return pd.DataFrame(rows)
 
+    def _corrected_constraint_summary(self, summary: pd.DataFrame) -> pd.DataFrame:
+        raw_low_count = int(summary["raw_low_thrust_margin"].sum())
+        corrected_low_count = int(summary["corrected_low_thrust_margin"].sum())
+        approach_sensitive_count = int(summary["approach_model_sensitive"].sum())
+        sizing_count = int(summary["sizing_or_schedule_low_thrust"].sum())
+        unmet_count = int(summary["unmet_electric_load"].sum())
+        mtow_exceeded_count = int((~summary["within_mtow_upper_bound"]).sum())
+        feasible_raw_count = int(summary["feasible_basic_raw"].sum())
+        feasible_corrected_count = int(summary["feasible_basic_corrected"].sum())
+        rows = [
+            {
+                "metric": "low_thrust_margin",
+                "raw_count": raw_low_count,
+                "corrected_count": corrected_low_count,
+                "explanation": "raw mission-solver low-thrust count compared with corrected approach-force-balance count",
+            },
+            {
+                "metric": "corrected_low_thrust_margin",
+                "raw_count": raw_low_count,
+                "corrected_count": corrected_low_count,
+                "explanation": "low-thrust count after replacing approach_landing with V0.2-04S descending force balance",
+            },
+            {
+                "metric": "approach_model_sensitive",
+                "raw_count": raw_low_count,
+                "corrected_count": approach_sensitive_count,
+                "explanation": "raw low-thrust cases cleared by corrected approach force balance with approach as raw limiting segment",
+            },
+            {
+                "metric": "sizing_or_schedule_low_thrust",
+                "raw_count": raw_low_count,
+                "corrected_count": sizing_count,
+                "explanation": "cases where low thrust remains after corrected approach classification",
+            },
+            {
+                "metric": "unmet_electric_load",
+                "raw_count": unmet_count,
+                "corrected_count": unmet_count,
+                "explanation": "hybrid electric load shortfall is preserved and not changed by approach correction",
+            },
+            {
+                "metric": "mtow_exceeded",
+                "raw_count": mtow_exceeded_count,
+                "corrected_count": mtow_exceeded_count,
+                "explanation": "cases above the configured MTOW upper bound",
+            },
+            {
+                "metric": "feasible_basic_raw",
+                "raw_count": feasible_raw_count,
+                "corrected_count": feasible_corrected_count,
+                "explanation": "basic screen count using raw constraints compared with corrected constraints",
+            },
+            {
+                "metric": "feasible_basic_corrected",
+                "raw_count": feasible_raw_count,
+                "corrected_count": feasible_corrected_count,
+                "explanation": "basic screen count using corrected low-thrust classification, unmet load, and MTOW upper bound",
+            },
+        ]
+        return pd.DataFrame(rows)
+
+    def _approach_classification(self, summary: pd.DataFrame) -> pd.DataFrame:
+        return summary[
+            [
+                "case_id",
+                "propulsion_case",
+                "changed_parameter",
+                "changed_value",
+                "raw_min_thrust_margin_N",
+                "corrected_approach_min_thrust_margin_N",
+                "raw_low_thrust_margin",
+                "corrected_low_thrust_margin",
+                "approach_model_sensitive",
+                "sizing_or_schedule_low_thrust",
+                "unmet_electric_load_Wh",
+                "conclusion_status_corrected",
+            ]
+        ].copy()
+
     def _best_candidates(self, summary: pd.DataFrame, details: pd.DataFrame) -> pd.DataFrame:
         merged = summary.merge(
             details[["case_id", "design_variable_summary"]],
@@ -636,20 +867,25 @@ class SensitivityRunner:
         )
         ordered = merged.sort_values(
             by=[
-                "constraint_count",
-                "unmet_electric_load_Wh",
-                "min_thrust_margin_N",
+                "feasible_basic_corrected",
+                "corrected_low_thrust_margin",
+                "unmet_electric_load",
+                "within_mtow_upper_bound",
+                "corrected_approach_min_thrust_margin_N",
                 "mission_fuel_kg",
                 "takeoff_proxy_index",
             ],
-            ascending=[True, True, False, True, True],
+            ascending=[False, True, True, False, False, True, True],
         ).head(10)
+        has_corrected_feasible = bool(summary["feasible_basic_corrected"].any())
         rows = []
         for _, row in ordered.iterrows():
-            if row["constraint_count"] == 0:
-                reason = "complete model output without major constraint flags; screening candidate only"
+            if bool(row["feasible_basic_corrected"]):
+                reason = "passes corrected basic screen; screening candidate only and not validated"
+            elif has_corrected_feasible:
+                reason = "near corrected-feasible screening row retained for comparison; not validated"
             else:
-                reason = "lowest remaining constraint burden in V0.2-05 screening; not validated"
+                reason = "best diagnostic row after corrected screening; constraints remain and result is not validated"
             rows.append(
                 {
                     "case_id": row["case_id"],
@@ -660,9 +896,19 @@ class SensitivityRunner:
                     "estimated_mtow_kg": row["estimated_mtow_kg"],
                     "mtow_margin_to_upper_kg": row["mtow_margin_to_upper_kg"],
                     "min_thrust_margin_N": row["min_thrust_margin_N"],
+                    "raw_min_thrust_margin_N": row["raw_min_thrust_margin_N"],
+                    "corrected_approach_min_thrust_margin_N": row[
+                        "corrected_approach_min_thrust_margin_N"
+                    ],
                     "unmet_electric_load_Wh": row["unmet_electric_load_Wh"],
                     "takeoff_proxy_index": row["takeoff_proxy_index"],
                     "conclusion_status": row["conclusion_status"],
+                    "conclusion_status_raw": row["conclusion_status_raw"],
+                    "conclusion_status_corrected": row["conclusion_status_corrected"],
+                    "feasible_basic_raw": row["feasible_basic_raw"],
+                    "feasible_basic_corrected": row["feasible_basic_corrected"],
+                    "raw_constraint_note": _raw_constraint_note(row),
+                    "corrected_constraint_note": _corrected_constraint_note(row),
                     "reason_selected": reason,
                 }
             )
@@ -690,6 +936,39 @@ def _settings_summary(settings: dict[str, float]) -> str:
     if not settings:
         return "baseline"
     return ";".join(f"{key}={value:g}" for key, value in sorted(settings.items()))
+
+
+def _min_net_thrust_margin_N(mission_solver_config: dict[str, Any]) -> float:
+    root = mission_solver_config["mission_solver"]
+    return float(root["numerical"]["min_net_thrust_margin_N"])
+
+
+def _raw_constraint_note(row: pd.Series) -> str:
+    notes = []
+    if bool(row["raw_low_thrust_margin"]):
+        notes.append(f"raw low thrust at {row['raw_limiting_segment']}")
+    if bool(row["unmet_electric_load"]):
+        notes.append("unmet electric load")
+    if not bool(row["within_mtow_upper_bound"]):
+        notes.append("above MTOW upper bound")
+    if not notes:
+        return "no raw basic-screen constraint"
+    return "; ".join(notes)
+
+
+def _corrected_constraint_note(row: pd.Series) -> str:
+    notes = []
+    if bool(row["approach_model_sensitive"]):
+        notes.append("raw approach constraint is model-formulation-sensitive")
+    if bool(row["sizing_or_schedule_low_thrust"]):
+        notes.append("corrected low thrust remains")
+    if bool(row["unmet_electric_load"]):
+        notes.append("unmet electric load remains")
+    if not bool(row["within_mtow_upper_bound"]):
+        notes.append("above MTOW upper bound")
+    if not notes:
+        return "passes corrected basic screen; not validated"
+    return "; ".join(notes)
 
 
 def _effective_clmax(base_clmax: float, c_mu_proxy: float, blowing: dict[str, Any]) -> float:

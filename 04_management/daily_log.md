@@ -79,3 +79,11 @@
 - Constraints summary: all 225 rows remain low-thrust-margin flagged; 69 rows have unmet electric load and 156 rows have zero unmet electric load.
 - Best candidate summary: selected rows are screening candidates only and remain constraint-qualified; no row is marked validated.
 - Open issues: V0.2-06/report integration should keep these as diagnostic model outputs, and future sizing work must address thrust margin before feasibility claims.
+
+# Daily Log 2026-06-10 V0.2-05R
+
+- V0.2-05R corrected sensitivity classification added raw and corrected low-thrust fields using the V0.2-04S approach force-balance helper.
+- Raw vs corrected counts: raw low thrust 225, corrected low thrust 225, approach-model-sensitive 0, sizing/schedule low thrust 225.
+- Candidate status: feasible basic raw 0 and feasible basic corrected 0; best candidates remain diagnostic screening rows and are not validated.
+- Tests run: sensitivity corrected-constraint tests, full script chain, and pytest.
+- Open limitations: hybrid unmet electric load remains in 69 rows, and low-thrust margin still requires sizing/schedule refinement before report claims.

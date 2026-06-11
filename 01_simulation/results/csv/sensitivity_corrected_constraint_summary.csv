@@ -1,0 +1,9 @@
+metric,raw_count,corrected_count,explanation
+low_thrust_margin,225,225,raw mission-solver low-thrust count compared with corrected approach-force-balance count
+corrected_low_thrust_margin,225,225,low-thrust count after replacing approach_landing with V0.2-04S descending force balance
+approach_model_sensitive,225,0,raw low-thrust cases cleared by corrected approach force balance with approach as raw limiting segment
+sizing_or_schedule_low_thrust,225,225,cases where low thrust remains after corrected approach classification
+unmet_electric_load,69,69,hybrid electric load shortfall is preserved and not changed by approach correction
+mtow_exceeded,67,67,cases above the configured MTOW upper bound
+feasible_basic_raw,0,0,basic screen count using raw constraints compared with corrected constraints
+feasible_basic_corrected,0,0,"basic screen count using corrected low-thrust classification, unmet load, and MTOW upper bound"

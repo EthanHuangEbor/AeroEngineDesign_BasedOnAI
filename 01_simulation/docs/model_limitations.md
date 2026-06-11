@@ -75,3 +75,11 @@
 - Best candidates are design-space screening candidates, not a final design.
 - Results depend on V0.2 assumptions and should change as sizing, approach, and hybrid schedules are refined.
 - No final fuel-burn, range, STOL, noise, safety, or certification claim is made.
+
+## V0.2-05R Corrected constraint classification limitations
+
+- Corrected approach classification uses the V0.2-04S quasi-steady descending approach force balance.
+- Raw mission-solver constraints and corrected approach constraints are both retained.
+- Corrected feasible candidates, if present in later scans, are proxy screening candidates and not validated designs.
+- Hybrid electric load, MTOW, and sizing/schedule constraints remain explicit and are not hidden by the approach correction.
+- No final fuel-burn, range, STOL, noise, safety, or certification claim is made.

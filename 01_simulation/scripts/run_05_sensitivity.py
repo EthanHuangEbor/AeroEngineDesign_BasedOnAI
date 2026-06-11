@@ -47,12 +47,22 @@ def main() -> None:
     constraints = tables["constraints"]
     best = tables["best_candidates"]
     tornado = tables["tornado"]
+    corrected_constraint_summary = tables["corrected_constraint_summary"]
+    approach_classification = tables["approach_classification"]
 
     write_dataframe_csv(summary, csv_dir / "sensitivity_summary.csv")
     write_dataframe_csv(details, csv_dir / "sensitivity_case_details.csv")
     write_dataframe_csv(constraints, csv_dir / "sensitivity_constraints.csv")
     write_dataframe_csv(best, csv_dir / "sensitivity_best_candidates.csv")
     write_dataframe_csv(tornado, csv_dir / "sensitivity_tornado_data.csv")
+    write_dataframe_csv(
+        corrected_constraint_summary,
+        csv_dir / "sensitivity_corrected_constraint_summary.csv",
+    )
+    write_dataframe_csv(
+        approach_classification,
+        csv_dir / "sensitivity_approach_classification.csv",
+    )
 
     merged = summary.merge(details, on=["case_id", "case_family", "propulsion_case"], how="left")
     _plot_constraint_tornado(tornado, png_dir, svg_dir)
@@ -60,19 +70,30 @@ def main() -> None:
     _plot_thrust_margin_vs_engine_rating(summary, png_dir, svg_dir)
     _plot_hybrid_power_sizing_map(merged, png_dir, svg_dir)
     _plot_takeoff_proxy_sensitivity(merged, png_dir, svg_dir)
+    _plot_corrected_constraint_feasibility_map(summary, png_dir, svg_dir)
+    _plot_raw_vs_corrected_thrust_margin(summary, png_dir, svg_dir)
+    _plot_approach_model_sensitivity_classification(
+        corrected_constraint_summary,
+        png_dir,
+        svg_dir,
+    )
 
-    low_thrust_cases = int((summary["min_thrust_margin_N"] < 0.0).sum())
-    unmet_cases = int((summary["unmet_electric_load_Wh"] > 0.0).sum())
-    zero_low_thrust_cases = int((summary["min_thrust_margin_N"] >= 0.0).sum())
-    zero_unmet_cases = int((summary["unmet_electric_load_Wh"] <= 0.0).sum())
+    raw_low_thrust_cases = int(summary["raw_low_thrust_margin"].sum())
+    corrected_low_thrust_cases = int(summary["corrected_low_thrust_margin"].sum())
+    approach_model_sensitive_cases = int(summary["approach_model_sensitive"].sum())
+    sizing_or_schedule_cases = int(summary["sizing_or_schedule_low_thrust"].sum())
+    unmet_cases = int(summary["unmet_electric_load"].sum())
+    corrected_feasible_cases = int(summary["feasible_basic_corrected"].sum())
 
     print("MTA-VHEP V0.2-05 Sensitivity Analysis Summary")
     print("Concept-level screening only; no validated design or certified performance claim.")
     print(f"Sensitivity case rows: {len(summary)}")
-    print(f"Rows with low thrust margin: {low_thrust_cases}")
+    print(f"Rows with raw low thrust margin: {raw_low_thrust_cases}")
+    print(f"Rows with corrected low thrust margin: {corrected_low_thrust_cases}")
+    print(f"Rows classified approach-model-sensitive: {approach_model_sensitive_cases}")
+    print(f"Rows classified sizing/schedule low thrust: {sizing_or_schedule_cases}")
     print(f"Rows with unmet electric load: {unmet_cases}")
-    print(f"Rows without low thrust margin: {zero_low_thrust_cases}")
-    print(f"Rows without unmet electric load: {zero_unmet_cases}")
+    print(f"Rows passing corrected basic screen: {corrected_feasible_cases}")
     print(f"Best-candidate rows: {len(best)}")
     print(f"Wrote: {csv_dir / 'sensitivity_summary.csv'}")
     print(f"Wrote: {csv_dir / 'sensitivity_best_candidates.csv'}")
@@ -236,6 +257,134 @@ def _plot_takeoff_proxy_sensitivity(
         svg_dir / "takeoff_proxy_sensitivity.svg",
     )
     plt.close(fig)
+
+
+def _plot_corrected_constraint_feasibility_map(
+    summary: pd.DataFrame,
+    png_dir: Path,
+    svg_dir: Path,
+) -> None:
+    fig, ax = plt.subplots(figsize=(8.0, 4.8), dpi=140)
+    colors = summary["feasible_basic_corrected"].map({True: "#2ca02c", False: "#d62728"})
+    ax.scatter(
+        summary["estimated_mtow_kg"],
+        summary["mission_fuel_kg"],
+        c=colors,
+        alpha=0.78,
+        edgecolors="none",
+    )
+    ax.set_xlabel("Estimated MTOW (kg)")
+    ax.set_ylabel("Mission fuel model output (kg)")
+    ax.set_title("Corrected Basic Feasibility Screen")
+    ax.grid(True, alpha=0.3)
+    _add_boolean_legend(ax, "Corrected feasible")
+    fig.tight_layout()
+    _save_figure(
+        fig,
+        png_dir / "corrected_constraint_feasibility_map.png",
+        svg_dir / "corrected_constraint_feasibility_map.svg",
+    )
+    plt.close(fig)
+
+
+def _plot_raw_vs_corrected_thrust_margin(
+    summary: pd.DataFrame,
+    png_dir: Path,
+    svg_dir: Path,
+) -> None:
+    fig, ax = plt.subplots(figsize=(8.0, 4.8), dpi=140)
+    colors = summary["approach_model_sensitive"].map({True: "#2ca02c", False: "#d62728"})
+    ax.scatter(
+        summary["raw_min_thrust_margin_N"],
+        summary["corrected_approach_min_thrust_margin_N"],
+        c=colors,
+        alpha=0.78,
+        edgecolors="none",
+    )
+    min_axis = min(
+        float(summary["raw_min_thrust_margin_N"].min()),
+        float(summary["corrected_approach_min_thrust_margin_N"].min()),
+        0.0,
+    )
+    max_axis = max(
+        float(summary["raw_min_thrust_margin_N"].max()),
+        float(summary["corrected_approach_min_thrust_margin_N"].max()),
+        0.0,
+    )
+    ax.plot([min_axis, max_axis], [min_axis, max_axis], color="black", linewidth=1.0)
+    ax.axhline(0.0, color="gray", linewidth=1.0, linestyle="--")
+    ax.axvline(0.0, color="gray", linewidth=1.0, linestyle="--")
+    ax.set_xlabel("Raw minimum thrust margin (N)")
+    ax.set_ylabel("Corrected minimum thrust margin (N)")
+    ax.set_title("Raw vs Corrected Thrust Margin")
+    ax.grid(True, alpha=0.3)
+    _add_boolean_legend(ax, "Approach-model sensitive")
+    fig.tight_layout()
+    _save_figure(
+        fig,
+        png_dir / "raw_vs_corrected_thrust_margin.png",
+        svg_dir / "raw_vs_corrected_thrust_margin.svg",
+    )
+    plt.close(fig)
+
+
+def _plot_approach_model_sensitivity_classification(
+    corrected_summary: pd.DataFrame,
+    png_dir: Path,
+    svg_dir: Path,
+) -> None:
+    wanted = [
+        "low_thrust_margin",
+        "corrected_low_thrust_margin",
+        "approach_model_sensitive",
+        "sizing_or_schedule_low_thrust",
+        "feasible_basic_corrected",
+    ]
+    table = corrected_summary[corrected_summary["metric"].isin(wanted)].copy()
+    table["plot_count"] = table["corrected_count"]
+    table.loc[table["metric"] == "low_thrust_margin", "plot_count"] = table.loc[
+        table["metric"] == "low_thrust_margin",
+        "raw_count",
+    ]
+
+    fig, ax = plt.subplots(figsize=(8.4, 4.8), dpi=140)
+    ax.bar(table["metric"], table["plot_count"])
+    ax.set_xlabel("Classification metric")
+    ax.set_ylabel("Case count")
+    ax.set_title("Approach Classification Counts")
+    ax.tick_params(axis="x", rotation=25)
+    ax.grid(True, axis="y", alpha=0.3)
+    fig.tight_layout()
+    _save_figure(
+        fig,
+        png_dir / "approach_model_sensitivity_classification.png",
+        svg_dir / "approach_model_sensitivity_classification.svg",
+    )
+    plt.close(fig)
+
+
+def _add_boolean_legend(ax, label: str) -> None:
+    handles = [
+        plt.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            markerfacecolor="#2ca02c",
+            label=f"{label}: yes",
+            markersize=8,
+        ),
+        plt.Line2D(
+            [0],
+            [0],
+            marker="o",
+            color="w",
+            markerfacecolor="#d62728",
+            label=f"{label}: no",
+            markersize=8,
+        ),
+    ]
+    ax.legend(handles=handles, fontsize="small")
 
 
 def _save_figure(fig, png_path: Path, svg_path: Path) -> None:
